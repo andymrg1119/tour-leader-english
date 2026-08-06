@@ -479,7 +479,7 @@ function renderWordBook(){
         +'<div class="wb-word">'+w.word+'</div>'
         +'<div class="wb-zh">'+w.zh+'</div>'
         +'<div class="wb-src">'+(w.src||'')+'</div>'
-        +'<button class="word-bookmark active" onclick="removeWord(''+w.word.replace(/'/g,"\'")+'')" style="color:var(--red)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+        +'<button class="word-bookmark active" data-rw="'+encodeURIComponent(w.word)+'" onclick="removeWord(this.getAttribute(\'data-rw\'))" style="color:var(--red)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
         +'</div>';
     }
   }
@@ -487,6 +487,7 @@ function renderWordBook(){
   $('wordbookContent').innerHTML=html;
 }
 function removeWord(word){
+  word=decodeURIComponent(word);
   state.wordBook=state.wordBook.filter(x=>x.word!==word);
   saveState();renderWordBook();toast('已移除');
 }
@@ -539,7 +540,7 @@ function renderWordReview(){
     +'点击听单词</button>'
     +'<div class="wb-options">';
   for(let o of opts){
-    html+='<button class="wb-opt" onclick="answerReview(''+o.word.replace(/'/g,"\'")+'')">'+o.zh+'</button>';
+    html+='<button class="wb-opt" data-rw="'+encodeURIComponent(o.word)+'" onclick="answerReview(this.getAttribute(\'data-rw\'))">'+o.zh+'</button>';
   }
   html+='</div></div>';
   $('wordbookContent').innerHTML=html;
@@ -554,6 +555,7 @@ function speakReviewWord(){
   window.speechSynthesis.speak(u);
 }
 function answerReview(word){
+  word=decodeURIComponent(word);
   const cur=wbReviewQueue[wbReviewIdx];
   const btns=document.querySelectorAll('.wb-opt');
   const correct=word===cur.word;
@@ -565,8 +567,6 @@ function answerReview(word){
     else if(wrongZh&&b.textContent===wrongZh)b.classList.add('wrong');
   });
   if(!correct)toast('正确答案：'+cur.zh);
-  setTimeout(()=>{wbReviewIdx++;renderWordReview()},1200);
-}
   setTimeout(()=>{wbReviewIdx++;renderWordReview()},1200);
 }
 function exitWordReview(){
