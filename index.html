@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>领队英语学习台</title>
+<style>
+:root{--bg:#f5f7fa;--card:#fff;--text:#1a1a2e;--mute:#8892a4;--teal:#0ea5a4;--teal-l:#e6f7f7;--red:#e74c3c;--red-l:#fdeaea;--orange:#f39c12;--orange-l:#fef5e7;--green:#27ae60;--green-l:#eafaf1;--border:#e8ecf1;--shadow:0 2px 8px rgba(0,0,0,.06);--radius:12px;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px}
+.header{background:linear-gradient(135deg,#0ea5a4,#0891b2);color:#fff;padding:16px 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(14,165,164,.2)}
+.header h1{font-size:20px;font-weight:700;letter-spacing:.5px}
+.header .sub{font-size:12px;opacity:.8;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:12px 16px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:12px;border:1px solid var(--border)}
+.card-title{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;min-height:44px;font-family:var(--font)}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-teal:hover{background:#0891b2}
+.btn-outline{background:#fff;color:var(--teal);border:2px solid var(--teal)}
+.btn-sm{padding:6px 12px;font-size:12px;min-height:36px}
+.btn-red{background:var(--red);color:#fff}
+.btn-ghost{background:transparent;color:var(--mute);border:1px solid var(--border)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.badge-teal{background:var(--teal-l);color:var(--teal)}
+.badge-red{background:var(--red-l);color:var(--red)}
+.badge-green{background:var(--green-l);color:var(--green)}
+.badge-orange{background:var(--orange-l);color:var(--orange)}
+.today-banner{background:linear-gradient(135deg,#fef5e7,#fff7ed);border-left:4px solid var(--orange);padding:12px 16px;border-radius:var(--radius);margin-bottom:12px}
+.today-banner.overdue{background:linear-gradient(135deg,#fdeaea,#fef2f2);border-left-color:var(--red)}
+.today-label{font-size:13px;font-weight:700;color:var(--orange);margin-bottom:6px}
+.overdue .today-label{color:var(--red)}
+.dialogue-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:8px}
+.dialogue-unit{font-size:13px;color:var(--mute);font-weight:500}
+.dialogue-title{font-size:17px;font-weight:700;margin:2px 0}
+/* dialogue turns - script style */
+.turn{margin-bottom:10px;padding:10px 12px;border-radius:10px;background:#f8fafc;border-left:3px solid #cbd5e1}
+.turn.leader{background:var(--teal-l);border-left-color:var(--teal)}
+.turn-speaker{font-size:12px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.turn.leader .turn-speaker{color:var(--teal)}
+.turn:not(.leader) .turn-speaker{color:#64748b}
+.speaker-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+.turn-en{font-size:15px;font-weight:600;line-height:1.55;margin-bottom:3px}
+.turn-zh{font-size:13px;color:var(--mute);margin-bottom:6px}
+.turn.leader .turn-zh{color:#0f766e;opacity:.75}
+.turn-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.speak-btn{background:#fff;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;min-height:36px;display:inline-flex;align-items:center;gap:4px;color:var(--teal);font-family:var(--font)}
+.speak-btn:hover{background:var(--teal-l)}
+.speak-btn.slow{color:var(--orange)}
+.expand-btn{background:none;border:none;color:var(--teal);font-size:12px;cursor:pointer;padding:6px 0;font-family:var(--font);min-height:36px}
+.detail-panel{display:none;margin-top:8px;padding:10px;background:#fff;border-radius:6px;border:1px solid var(--border)}
+.detail-panel.show{display:block}
+.word-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
+.word-table td{padding:4px 8px;border-bottom:1px solid var(--border)}
+.word-table td:first-child{font-weight:600;color:var(--teal);white-space:nowrap}
+.word-speak{background:none;border:none;cursor:pointer;color:var(--teal);padding:2px 4px;margin-left:4px;vertical-align:middle;display:inline-flex;align-items:center;min-height:28px;min-width:28px;justify-content:center;border-radius:4px}
+.word-speak:hover{background:var(--teal-l)}
+.word-bookmark{background:none;border:none;cursor:pointer;color:#cbd5e1;padding:2px 4px;vertical-align:middle;display:inline-flex;align-items:center;min-height:28px;min-width:28px;justify-content:center;border-radius:4px}
+.word-bookmark:hover{background:var(--orange-l)}
+.word-bookmark.active{color:var(--orange)}
+.wb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:6px;background:var(--card);border-radius:8px;border:1px solid var(--border)}
+.wb-item .wb-word{font-weight:600;color:var(--teal);font-size:15px;min-width:80px}
+.wb-item .wb-zh{font-size:13px;color:var(--mute);flex:1}
+.wb-item .wb-src{font-size:11px;color:var(--mute);white-space:nowrap}
+.wb-review-card{text-align:center;padding:30px 20px}
+.wb-review-word{font-size:28px;font-weight:700;color:var(--teal);margin-bottom:8px}
+.wb-review-zh{font-size:16px;color:var(--mute);margin-bottom:20px;min-height:24px}
+.wb-options{display:flex;flex-direction:column;gap:8px;max-width:300px;margin:0 auto}
+.wb-opt{padding:14px;border:2px solid var(--border);border-radius:10px;background:#fff;font-size:14px;cursor:pointer;min-height:48px;font-family:var(--font);transition:all .15s}
+.wb-opt:hover{border-color:var(--teal)}
+.wb-opt.correct{border-color:var(--green);background:var(--green-l)}
+.wb-opt.wrong{border-color:var(--red);background:var(--red-l)}
+.grammar-box{font-size:12px;padding:8px;background:var(--orange-l);border-radius:6px;margin-bottom:6px;line-height:1.5}
+.usage-box{font-size:12px;padding:8px;background:#f0f4ff;border-radius:6px;line-height:1.5}
+.play-all{width:100%;margin-bottom:12px}
+.course-unit{margin-bottom:16px}
+.course-unit-header{font-size:14px;font-weight:700;color:var(--teal);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--teal-l)}
+.course-item{display:flex;align-items:center;padding:10px 12px;margin-bottom:6px;background:var(--card);border-radius:8px;border:1px solid var(--border);gap:10px;font-size:14px;cursor:pointer}
+.course-item:hover{border-color:var(--teal)}
+.course-item.learned{background:var(--green-l)}
+.course-item .num{width:28px;height:28px;border-radius:50%;background:var(--teal-l);color:var(--teal);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+.course-item.learned .num{background:var(--green);color:#fff}
+.course-item .info{flex:1;min-width:0}
+.course-item .info .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.course-item .info .stat{font-size:11px;color:var(--mute)}
+.heatmap{display:flex;flex-wrap:wrap;gap:3px;margin:10px 0}
+.heatmap-cell{width:14px;height:14px;border-radius:2px;background:#e8ecf1}
+.heatmap-cell.done{background:var(--teal)}
+.heatmap-cell.miss{background:var(--red-l)}
+.streak-box{display:flex;gap:12px;flex-wrap:wrap}
+.streak-stat{flex:1;min-width:100px;text-align:center;padding:14px 8px;background:var(--card);border-radius:var(--radius);border:1px solid var(--border)}
+.streak-stat .num{font-size:28px;font-weight:800;color:var(--teal)}
+.streak-stat .label{font-size:11px;color:var(--mute);margin-top:2px}
+.tab-nav{display:flex;background:var(--card);border-radius:var(--radius);padding:4px;margin-bottom:16px;box-shadow:var(--shadow);border:1px solid var(--border);position:sticky;top:72px;z-index:50}
+.tab-btn{flex:1;padding:10px;text-align:center;font-size:14px;font-weight:600;border:none;background:none;border-radius:8px;cursor:pointer;color:var(--mute);transition:all .15s;min-height:44px;font-family:var(--font)}
+.tab-btn.active{background:var(--teal);color:#fff;box-shadow:0 1px 4px rgba(14,165,164,.3)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:var(--radius);padding:24px;max-width:400px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,.15)}
+.modal h3{margin-bottom:12px}
+.modal p{font-size:14px;color:var(--mute);margin-bottom:16px;line-height:1.5}
+.modal .row{justify-content:flex-end}
+.empty{text-align:center;padding:40px 20px;color:var(--mute)}
+.backup-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.backup-bar .btn{font-size:12px;padding:6px 10px;min-height:36px}
+.mobile-tabs{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:6px 0;padding-bottom:env(safe-area-inset-bottom);z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,.05)}
+.mobile-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:none;color:var(--mute);font-size:11px;cursor:pointer;padding:6px;min-height:50px;font-family:var(--font)}
+.mobile-tab.active{color:var(--teal)}
+.mobile-tab svg{width:22px;height:22px}
+.review-item{display:flex;align-items:center;justify-content:space-between;padding:10px;margin-bottom:6px;background:#fff;border-radius:8px;border:1px solid var(--border);font-size:13px;gap:8px}
+.review-item .name{font-weight:600}
+@media(max-width:768px){
+  .container{padding:8px 10px}
+  .header{padding:12px 16px}
+  .header h1{font-size:18px}
+  .tab-nav{top:56px;margin-bottom:12px}
+  .card{padding:12px}
+  .mobile-tabs{display:flex}
+  body{padding-bottom:70px}
+  .streak-stat .num{font-size:22px}
+  .backup-bar .btn{font-size:11px}
+  input,select,textarea{font-size:16px!important}
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.pulse{animation:pulse 1.5s ease-in-out infinite}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>领队英语学习台</h1>
+  <div class="sub">基于《领队英语》第6版（袁智敏·仉向明 著）| 33段完整对话 · 每日一段新课+一段复习</div>
+</div>
+<div class="container">
+  <div class="backup-bar">
+    <button class="btn btn-ghost btn-sm" onclick="exportData()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      导出备份
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="importData()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      导入恢复
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="clearData()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      清空
+    </button>
+    <span id="dataHint" style="font-size:11px;color:var(--orange);display:none;align-self:center"></span>
+  </div>
+  <div id="todayAlert"></div>
+  <div class="tab-nav" id="tabNav">
+    <button class="tab-btn active" onclick="switchTab('today')">今日学习</button>
+    <button class="tab-btn" onclick="switchTab('courses')">全部课程</button>
+    <button class="tab-btn" onclick="switchTab('wordbook')">生词本</button>
+    <button class="tab-btn" onclick="switchTab('progress')">打卡进度</button>
+  </div>
+  <div class="tab-panel active" id="panel-today"><div id="todayContent"></div></div>
+  <div class="tab-panel" id="panel-courses"><div id="coursesContent"></div></div>
+  <div class="tab-panel" id="panel-wordbook"><div id="wordbookContent"></div></div>
+  <div class="tab-panel" id="panel-progress"><div id="progressContent"></div></div>
+</div>
+<div class="mobile-tabs" id="mobileTabs">
+  <button class="mobile-tab active" onclick="switchTab('today')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    今日学习
+  </button>
+  <button class="mobile-tab" onclick="switchTab('courses')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    全部课程
+  </button>
+  <button class="mobile-tab" onclick="switchTab('wordbook')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    生词本
+  </button>
+  <button class="mobile-tab" onclick="switchTab('progress')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    打卡进度
+  </button>
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="clearModal">
+  <div class="modal">
+    <h3>确认清空</h3>
+    <p>将清除所有学习记录和打卡数据，此操作不可撤销。建议先导出备份。</p>
+    <div class="row">
+      <button class="btn btn-ghost" onclick="closeClearModal()">取消</button>
+      <button class="btn btn-red" onclick="doClear()">确认清空</button>
+    </div>
+  </div>
+</div>
+<input type="file" id="fileInput" style="display:none" accept=".json" onchange="handleFileImport(event)">
+<script>
+const DIALOGUE_UNITS = [{"id":"d001","unit":"第一单元 在机场","unit_id":1,"name":"1.1 在问讯处","scene":"在机场","turns":[{"speaker":"领队","side":"leader","en":"Could you tell me where I can check in for CA 112 to Seoul?","zh":"请问前往首尔的CA112航班在哪里办理登机手续？","words":[["check in","办理登机"],["CA 112","航班号CA112"],["Seoul","首尔"],["could you tell me","请问你能告诉我"],["a group of","一行/一队"]],"grammar":"Could you tell me where... 是间接疑问句，where引导宾语从句用陈述语序；check in 固定短语表\"办理登机\"。","usage":"对应《领队英语》第一单元第1课「At the Information Desk（在问讯处）」，领队到达机场后第一件事——找到值机柜台。"},{"speaker":"问讯处职员","side":"other","en":"CA 112 to Seoul departs from Terminal 3. The check-in counters are D12 to D16.","zh":"CA112飞首尔的航班在3号航站楼出发，值机柜台是D12到D16。","words":[["Terminal 3","3号航站楼"],["check-in counters","值机柜台"],["depart from","从...出发"]]},{"speaker":"领队","side":"leader","en":"We are a group of 20 people going to Singapore by CA 114.","zh":"我们一行20人乘坐CA114航班前往新加坡。","words":[["a group of","一行/一队"],["20 people","20人"],["Singapore","新加坡"],["by CA 114","乘坐CA114航班"],["begin to check in","开始办理登机"]],"grammar":"a group of + 数字 + people 表达团队规模；by + 航班号 表示乘坐某航班。","usage":"在问讯处向地勤说明团体情况，领队高频开场白。"},{"speaker":"问讯处职员","side":"other","en":"I see. For group check-in, please go to counter D20. A staff member will assist you there.","zh":"明白了。团体值机请到D20柜台，那里有工作人员协助您。","words":[["group check-in","团体值机"],["counter D20","D20柜台"],["assist","协助"]]},{"speaker":"领队","side":"leader","en":"Do you know when they begin to check in for our flight?","zh":"你知道我们的航班什么时候开始办理登机吗？","words":[["begin to check in","开始办理登机"],["for our flight","我们的航班"],["do you know","你知道...吗"],["counter","柜台"]],"grammar":"when引导宾语从句，从句用陈述语序；begin to do 开始做某事。","usage":"问讯处常见问题——确认办理登机时间，好安排团队排队。"},{"speaker":"问讯处职员","side":"other","en":"Check-in begins at 2 PM, three hours before departure.","zh":"下午2点开始办理，起飞前三小时。","words":[["three hours before departure","起飞前三小时"]]},{"speaker":"领队","side":"leader","en":"Thank you very much. Let's go, everyone — Terminal 3, counter D20.","zh":"非常感谢。大家走吧——3号航站楼D20柜台。"}]},{"id":"d002","unit":"第一单元 在机场","unit_id":1,"name":"1.2 在值机柜台","scene":"在机场","turns":[{"speaker":"领队","side":"leader","en":"Miss, is this the counter for CA 114 to Singapore?","zh":"小姐，这里办理飞往新加坡的CA114航班登机手续吗？","words":[["counter","柜台"],["for CA 114","CA114航班"],["Singapore","新加坡"],["tour leader","领队"]],"grammar":"Is this the counter for... 确认柜台归属的经典句型；for 表\"为...服务\"。","usage":"对应第一单元第1课「At the Check-in Counter（办理值机手续）」，确认柜台是否正确。"},{"speaker":"值机员","side":"other","en":"Yes, this is the right counter. May I see your passports, please?","zh":"是的，就是这个柜台。请把护照给我看一下好吗？","words":[["the right counter","正确的柜台"],["passports","护照（复数）"]]},{"speaker":"领队","side":"leader","en":"Hello, I am Xiao Wang, a tour leader from Yunnan China Youth Travel Service. These are our passports.","zh":"你好，我是小王，来自云南中青旅的领队。这是我们的护照。","words":[["tour leader","领队"],["China Youth Travel Service","中国青年旅行社"],["passports","护照（复数）"],["from Yunnan","来自云南"],["arrange our seats","安排座位"]],"grammar":"a tour leader from... 同位语+from表达，简洁介绍身份和单位；These are... 递材料的标准句式。","usage":"值机柜台正式登场——递护照+表明领队身份。"},{"speaker":"值机员","side":"other","en":"Thank you, Mr. Wang. Twenty passengers for CA 114 — I've found your group booking.","zh":"谢谢，王先生。CA114航班20位乘客——我找到你们的团体预订了。","words":[["group booking","团体预订"],["twenty passengers","20位乘客"]]},{"speaker":"领队","side":"leader","en":"Is it possible to arrange our seats close to each other, or a family to sit together?","zh":"能不能把我们的座位尽量安排在一起，或者一家人坐一起？","words":[["arrange our seats","安排座位"],["close to each other","互相靠近"],["sit together","坐在一起"],["Is it possible to","是否可能..."],["pieces of luggage","件行李"]],"grammar":"Is it possible to... 礼貌请求；arrange...close to each other 尽量靠近；sit together 一起坐。","usage":"值机时领队为团队争取好座位的标准请求。"},{"speaker":"值机员","side":"other","en":"I'll arrange rows 18 to 23 for your group. Your seats are mostly together. Here are your boarding passes.","zh":"我给贵团安排18到23排，座位基本都在一起。这是登机牌。","words":[["rows 18 to 23","18到23排"],["mostly together","基本在一起"],["boarding passes","登机牌"]]},{"speaker":"领队","side":"leader","en":"Perfect. Thank you for your help!","zh":"太好了，谢谢你的帮助！"}]},{"id":"d003","unit":"第一单元 在机场","unit_id":1,"name":"1.3 办理行李托运","scene":"在机场","turns":[{"speaker":"值机员","side":"other","en":"Do you have any pieces of luggage to check in?","zh":"您有行李需要托运吗？","words":[["pieces of luggage","件行李"],["check in","托运"],["do you have","您有...吗"],["six pieces","六件"]],"grammar":"luggage 是不可数名词，用 pieces of 量化；to check in 不定式作定语修饰 luggage。","usage":"对应第一单元第1课「Luggage Check-in（行李托运）」，地勤标准问句。"},{"speaker":"领队","side":"leader","en":"Yes, here are six pieces. Please place them on the scales.","zh":"是的，这里有六件。请把它们放在磅秤上。","words":[["six pieces","六件"],["place them on","把它们放在...上"],["scales","磅秤/秤"],["here are","这里有"],["over-sized","超尺寸"]],"grammar":"Here are... 递东西/交代数量的倒装句；place...on... 把...放在...上。","usage":"行李托运办理——报告件数、配合称重。"},{"speaker":"值机员","side":"other","en":"All six pieces are within the weight limit. Here are your baggage claim tags.","zh":"六件都在限重之内。这是行李提取牌。","words":[["within the weight limit","在限重之内"],["baggage claim tags","行李提取牌"]]},{"speaker":"值机员","side":"other","en":"Sorry, this luggage is over-sized. You must go to the over-sized baggage check-in counter.","zh":"抱歉，这件行李超尺寸了。您需要去超规行李托运柜台。","words":[["over-sized","超尺寸"],["over-sized baggage","超规行李"],["check-in counter","托运柜台"],["must go to","需要去"],["transfer to","转乘"]],"grammar":"over- 前缀表\"超过\"（overweight 超重, over-sized 超大）；must 表必须。","usage":"第6版新增内容——自助值机及行李托运场景中的超规行李处理。"},{"speaker":"领队","side":"leader","en":"I see. Where is the over-sized baggage counter, please?","zh":"明白了。请问超规行李柜台在哪里？"},{"speaker":"值机员","side":"other","en":"It's at the end of this aisle, next to counter 30.","zh":"在通道尽头，30号柜台旁边。","words":[["at the end of","在...尽头"],["aisle","通道"]]}]},{"id":"d004","unit":"第一单元 在机场","unit_id":1,"name":"1.4 过境与转机","scene":"在机场","turns":[{"speaker":"领队","side":"leader","en":"Excuse me, we are to transfer to JL 458 to Tokyo. Can you help me?","zh":"劳驾，我们要转乘日本航空公司458号航班去东京，你能帮我吗？","words":[["transfer to","转乘"],["JL 458","日航458航班"],["Tokyo","东京"],["Can you help me","你能帮我吗"],["as close to each other as possible","尽量靠近"]],"grammar":"be to do 表示\"计划/安排要做\"，比 will 更正式；transfer to 转机到。","usage":"对应第一单元第1课「Transit and Transfer（过境与转机）」，转机柜台的标准请求。"},{"speaker":"转机柜台职员","side":"other","en":"Sure. Do you already have your boarding passes for JL 458?","zh":"当然可以。你们已经有JL458的登机牌了吗？"},{"speaker":"领队","side":"leader","en":"No, we need to collect them here at the transfer desk.","zh":"没有，我们需要在转机柜台领取。","words":[["collect","领取"],["transfer desk","转机柜台"]]},{"speaker":"领队","side":"leader","en":"Can we have our seats as close to each other as possible?","zh":"我们的座位能尽量安排在一起吗？","words":[["as close to each other as possible","尽量靠近"],["have our seats","安排我们的座位"],["smoking seats","吸烟区座位"]],"grammar":"as...as possible 结构表\"尽可能...\"；close to each other 互相靠近。","usage":"转机换登机牌时，再次争取团队座位安排在一起。"},{"speaker":"转机柜台职员","side":"other","en":"Of course. How many people are in your group?","zh":"没问题。你们团一共多少人？"},{"speaker":"领队","side":"leader","en":"We need three smoking seats and seven non-smoking seats.","zh":"我们需要三个吸烟座位和七个非吸烟座位。","words":[["smoking seats","吸烟区座位"],["non-smoking seats","非吸烟区座位"],["we need","我们需要"],["boarding Gate 28","28号登机口"]],"grammar":"non- 否定前缀；seats 座位（countable）。注意：现在大多数航班已全面禁烟，此为教材历史内容。","usage":"转机时确认座位偏好分布。"},{"speaker":"转机柜台职员","side":"other","en":"All right. Rows 25 and 26, mostly together. Here are your passes for JL 458.","zh":"好的。25和26排，基本都在一起。这是JL458的登机牌。"}]},{"id":"d005","unit":"第一单元 在机场","unit_id":1,"name":"1.5 登机","scene":"在机场","turns":[{"speaker":"领队","side":"leader","en":"Could you tell me the way to boarding Gate 28?","zh":"你能告诉我怎么去28号登机口吗？","words":[["boarding Gate 28","28号登机口"],["the way to","去...的路"],["Could you tell me","你能告诉我吗"],["now boarding","正在登机"]],"grammar":"Could you tell me the way to... 问路的经典句式；boarding gate 登机口。","usage":"对应第一单元第1课「Getting Aboard a Plane（登机）」，确认登机口位置。"},{"speaker":"机场职员","side":"other","en":"Go straight along this corridor and turn left at the duty-free shop. It's about a five-minute walk.","zh":"沿这条通道直走，在免税店左转，步行大约五分钟。","words":[["corridor","通道"],["duty-free shop","免税店"],["turn left","左转"]]},{"speaker":"领队","side":"leader","en":"The flight is now boarding at Gate 28. Please have your boarding pass ready.","zh":"航班现在在28号登机口登机中。请准备好登机牌。","words":[["now boarding","正在登机"],["boarding pass","登机牌"],["have...ready","把...准备好"],["at Gate 28","在28号口"],["Attention please","请注意"]],"grammar":"is boarding 现在进行时表动作进行中；have sth ready 把某物准备好。","usage":"领队向团员转达登机信息的标准口令。"},{"speaker":"团员","side":"other","en":"Got it. Let's go!","zh":"明白，走吧！"},{"speaker":"登机口地勤","side":"other","en":"Boarding pass and passport, please. Enjoy your flight!","zh":"请出示登机牌和护照。祝您旅途愉快！","words":[["Enjoy your flight","祝您旅途愉快"]]}]},{"id":"d006","unit":"第一单元 在机场","unit_id":1,"name":"1.6 机场广播","scene":"在机场","turns":[{"speaker":"机场广播","side":"other","en":"Attention please. Flight CA 112 to Seoul is now ready for boarding at Gate 15.","zh":"请注意。前往首尔的CA112航班现在在15号口开始登机。","words":[["Attention please","请注意"],["Flight CA 112","CA112航班"],["ready for boarding","准备登机"],["at Gate 15","在15号口"],["final boarding call","最后一次登机通知"]],"grammar":"ready for... 准备好...；boarding 登机（动名词）；这是标准的机场广播句式。","usage":"对应第一单元第1课「Airport Announcements（机场广播）」，领队需帮团员听懂英文广播。"},{"speaker":"领队","side":"leader","en":"Did you hear that, everyone? Our flight CA 112 is boarding at Gate 15. Please follow me.","zh":"大家听到了吗？我们的CA112航班在15号口登机了，请跟我来。","words":[["follow me","跟我来"]]},{"speaker":"机场广播","side":"other","en":"This is the final boarding call for passengers on flight MU 362 to Shanghai.","zh":"这是前往上海的MU362航班的最后一次登机通知。","words":[["final boarding call","最后一次登机通知"],["passengers","乘客"],["MU 362","MU362航班"],["to Shanghai","前往上海"],["disembarkation cards","入境卡"]],"grammar":"final call 最后召集；on flight... 乘坐...航班；passengers on flight 航班乘客。","usage":"领队必须听懂的最后登机广播——错过就麻烦了。"},{"speaker":"团员","side":"other","en":"Is that our flight? It sounds urgent.","zh":"那是我们的航班吗？听起来很急。","words":[["urgent","紧急的"]]},{"speaker":"领队","side":"leader","en":"No, that's MU 362 to Shanghai. Ours is CA 112 to Seoul. Don't worry.","zh":"不是，那是去上海的MU362。我们是去首尔的CA112，别担心。"}]},{"id":"d007","unit":"第一单元 在机场","unit_id":1,"name":"2.1 办理入境手续","scene":"在机场","turns":[{"speaker":"领队","side":"leader","en":"Please have your passports and disembarkation cards ready for immigration inspection.","zh":"请准备好护照和入境卡，以备入境检查。","words":[["disembarkation cards","入境卡"],["immigration inspection","入境检查"],["have...ready","把...准备好"],["passports","护照"],["the purpose of your visit","来访目的"]],"grammar":"have sth ready for... 为...准备好某物；disembarkation 下飞机→入境。","usage":"对应第一单元第2课「Immigration Formalities（办理入境手续）」，入境检查前的标准提醒。"},{"speaker":"团员","side":"other","en":"What will the officer ask us?","zh":"入境官会问我们什么？"},{"speaker":"领队","side":"leader","en":"The officer will ask you about the purpose of your visit. Just say 'tourism' or 'sightseeing'.","zh":"官员会问你来访目的，就说'tourism'（旅游）或'sightseeing'（观光）。","words":[["the purpose of your visit","来访目的"],["tourism","旅游"],["sightseeing","观光"],["officer","官员"],["baggage claim area","行李提取区"]],"grammar":"the purpose of 的固定搭配；will ask 将来时表预判；Just say... 简洁指令。","usage":"领队提前给团员做入境辅导，避免过关时紧张。"},{"speaker":"团员","side":"other","en":"OK, got it. 'Tourism'. Anything else we should prepare?","zh":"好的记住了，tourism。还要准备别的吗？"},{"speaker":"领队","side":"leader","en":"Also keep your hotel address handy. They sometimes ask where you will stay.","zh":"还要把酒店地址准备好，他们有时会问住在哪里。","words":[["keep...handy","把...备好"],["hotel address","酒店地址"]]},{"speaker":"入境官","side":"other","en":"Next, please. Passport and arrival card... What's the purpose of your visit?","zh":"下一位。护照和入境卡……来访目的是什么？","words":[["arrival card","入境卡"],["purpose of your visit","来访目的"]]},{"speaker":"团员","side":"other","en":"Tourism.","zh":"旅游。"}]},{"id":"d008","unit":"第一单元 在机场","unit_id":1,"name":"2.2 提取行李","scene":"在机场","turns":[{"speaker":"领队","side":"leader","en":"The baggage claim area is over there. Our flight's luggage will be on Carousel No.5.","zh":"行李提取处就在那边。我们航班的行李将在5号转盘。","words":[["baggage claim area","行李提取区"],["Carousel No.5","5号转盘"],["over there","在那边"],["luggage","行李"],["double-check","再次核对"]],"grammar":"baggage claim 行李领取；carousel 行李传送带/转盘；will be on 将在...上。","usage":"对应第一单元第2课「Luggage Claiming（提取行李）」，引导团员找行李。"},{"speaker":"团员","side":"other","en":"How do we know which carousel is ours?","zh":"我们怎么知道哪个转盘是我们的？"},{"speaker":"领队","side":"leader","en":"Check the screen above each carousel — it shows the flight number.","zh":"看每个转盘上方的屏幕，会显示航班号。","words":[["screen","屏幕"],["carousel","行李转盘"],["flight number","航班号"]]},{"speaker":"领队","side":"leader","en":"Please double-check your luggage tags before you leave the claim area.","zh":"离开领取区前请再次核对行李牌。","words":[["double-check","再次核对"],["luggage tags","行李牌"],["claim area","领取区"],["before you leave","在你离开前"],["stay behind","站在...后面"]],"grammar":"double-check 再次确认；before引导时间状语从句；luggage tag 行李牌。","usage":"防止拿错行李的提醒——领队安全须知。"},{"speaker":"团员","side":"other","en":"OK, mine matches. Tag number 318527.","zh":"好的，我的对上了，行李牌号318527。","words":[["match","对得上/匹配"]]}]},{"id":"d009","unit":"第一单元 在机场","unit_id":1,"name":"2.3 通过海关","scene":"在机场","turns":[{"speaker":"领队","side":"leader","en":"Please stay behind the yellow line and wait for your turn at the customs counter.","zh":"请在黄线后等候，排队等待海关检查。","words":[["stay behind","站在...后面"],["yellow line","黄线"],["wait for your turn","等待轮到您"],["customs counter","海关柜台"],["carrying","携带"]],"grammar":"stay behind 站/待在...后；wait for one's turn 排队等待；at the customs counter 在海关柜台。","usage":"对应第一单元第2课「Customs Clearance（通过海关）」，维持团队秩序。"},{"speaker":"海关官员","side":"other","en":"Next, please. Passport and customs declaration form.","zh":"下一位。请出示护照和海关申报单。","words":[["customs declaration form","海关申报单"]]},{"speaker":"领队","side":"leader","en":"If you're carrying more than 10,000 US dollars in cash or equivalents, you must declare it.","zh":"如携带超过一万美元现金或等值货币，必须申报。","words":[["carrying","携带"],["in cash","以现金形式"],["declare","申报"],["equivalents","等值物"],["carry-on bags","随身行李"]],"grammar":"if引导条件从句；in cash 以现金形式；must declare 强制申报；equivalents 等值。","usage":"海关申报提醒——避免团员被罚款的关键提醒。"},{"speaker":"团员","side":"other","en":"I only carry about 2,000 dollars. I don't need to declare, right?","zh":"我只带了大约2000美元，不用申报吧？","words":[["declare","申报"]]},{"speaker":"领队","side":"leader","en":"That's right. Take the green channel — nothing to declare.","zh":"对。走绿色通道——无申报通道。","words":[["green channel","绿色通道"],["nothing to declare","无申报"]]}]},{"id":"d010","unit":"第一单元 在机场","unit_id":1,"name":"2.4 行李安检","scene":"在机场","turns":[{"speaker":"安检员","side":"other","en":"Please put your carry-on bags on the conveyor belt for X-ray screening.","zh":"请将随身行李放在传送带上进行X光检查。","words":[["carry-on bags","随身行李"],["conveyor belt","传送带"],["X-ray screening","X光检查"],["put...on","把...放在...上"],["take out","取出"]],"grammar":"carry-on 随身携带的（形容词兼名词）；screening 检查/筛查；put on 放在...上。","usage":"对应第一单元第2课「Security Check（行李安检）」，第6版新增了金属物件及饮用水处理内容。"},{"speaker":"领队","side":"leader","en":"Please take out your laptop, power bank, and any metal items from your bag and place them in the tray.","zh":"请从包中取出笔记本电脑、充电宝和所有金属物品放入托盘。","words":[["take out","取出"],["power bank","充电宝"],["metal items","金属物品"],["tray","托盘"],["liquids","液体"]],"grammar":"take out...from... 从...取出...；and place them 并列祈使句；tray 安检托盘。","usage":"第6版新增安检细则——电子产品及金属物件单独过检。"},{"speaker":"团员","side":"other","en":"What about my water bottle? Can I take it through?","zh":"我的水杯呢？能带过去吗？","words":[["water bottle","水杯"],["take it through","带过去"]]},{"speaker":"安检员","side":"other","en":"Any liquids over 100ml are not allowed in carry-on luggage. Please drink it or dispose of it now.","zh":"随身行李中不允许携带超过100毫升的液体。请现在喝掉或处理掉。","words":[["liquids","液体"],["over 100ml","超过100毫升"],["carry-on luggage","随身行李"],["dispose of","处理掉"],["emigration counter","出境柜台"]],"grammar":"are not allowed 不被允许；over 100ml 超过100毫升；dispose of 处理/处置。","usage":"第6版新增——饮用水等液体安检规定提醒。"},{"speaker":"团员","side":"other","en":"OK, I'll finish it now.","zh":"好的，我现在喝完。"}]},{"id":"d011","unit":"第一单元 在机场","unit_id":1,"name":"2.5 办理出境手续","scene":"在机场","turns":[{"speaker":"领队","side":"leader","en":"Please go to the emigration counter with your passport and boarding pass.","zh":"请持护照和登机牌前往出境检查柜台。","words":[["emigration counter","出境柜台"],["boarding pass","登机牌"],["go to","前往"],["passport","护照"],["departure card","出境卡"]],"grammar":"emigration 出境（← e- 向外 + migration 迁移），与 immigration（入境）对应；go to...with... 带...去...。","usage":"对应第一单元第2课「Emigration Formalities（办理出境手续）」，离境标准流程。"},{"speaker":"团员","side":"other","en":"Do we need to fill out any forms first?","zh":"需要先填什么表格吗？","words":[["fill out","填写"]]},{"speaker":"领队","side":"leader","en":"Make sure your departure card has been filled out correctly before you reach the counter.","zh":"确保出境卡在到达柜台前正确填写完毕。","words":[["departure card","出境卡"],["filled out","填写"],["correctly","正确"],["make sure","确保"],["tax refund form","退税单"]],"grammar":"make sure + 从句 确保...；has been filled out 现在完成时被动；departure 出发/出境。","usage":"离境前最后检查——出境卡是否填对。"},{"speaker":"边检官","side":"other","en":"Passport, boarding pass and departure card, please... Thank you. You're all set.","zh":"护照、登机牌和出境卡……谢谢，都办好了。","words":[["departure card","出境卡"],["You're all set","都办好了"]]}]},{"id":"d012","unit":"第一单元 在机场","unit_id":1,"name":"2.6 办理退税手续","scene":"在机场","turns":[{"speaker":"领队","side":"leader","en":"Where can I get the tax refund form? We need it for our group purchases.","zh":"在哪里领取退税单？我们团购商品需要办理。","words":[["tax refund form","退税单"],["group purchases","团购商品"],["where can I get","哪里能拿到"],["claim a tax refund","申请退税"]],"grammar":"tax refund 退税（refund = re回 + fund资金）；Where can I get... 询问获取地点。","usage":"对应第一单元第2课「Tax Refund（办理退税手续）」，退税第一步——拿表。"},{"speaker":"店员","side":"other","en":"I'll prepare the refund forms for you. May I see your passports and receipts?","zh":"我来为您准备退税单。请给我看一下护照和收据。","words":[["refund forms","退税单"],["receipts","收据"]]},{"speaker":"店员","side":"other","en":"You can claim a tax refund on purchases over 5,000 yen. Please show your passport and receipts at the counter.","zh":"购物满5000日元可申请退税，请在柜台出示护照和收据。","words":[["claim a tax refund","申请退税"],["purchases over","购物满...以上"],["receipts","收据"],["at the counter","在柜台"],["has been delayed","已被延误"]],"grammar":"claim 申请/领取；on purchases over... 在满...的消费上；receipts 收据（注意p不发音 re-seets）。","usage":"向团员解释退税门槛和流程。"},{"speaker":"领队","side":"leader","en":"Everyone, remember: keep your receipts! We'll do the refund together at the airport counter.","zh":"大家记住：收好收据！我们到机场退税柜台一起办理。","words":[["keep your receipts","收好收据"]]},{"speaker":"团员","side":"other","en":"Where is the refund counter at the airport?","zh":"机场的退税柜台在哪里？"},{"speaker":"领队","side":"leader","en":"After security, near Gate 30. I'll take you all there.","zh":"过了安检，30号登机口附近。到时候我带大家去。","words":[["after security","安检之后"]]}]},{"id":"d013","unit":"第一单元 在机场","unit_id":1,"name":"3.1 航班延误","scene":"在机场","turns":[{"speaker":"领队","side":"leader","en":"Attention everyone. Our flight CA 114 has been delayed due to bad weather conditions.","zh":"各位请注意，我们的CA114航班因恶劣天气延误了。","words":[["has been delayed","已被延误"],["due to","由于"],["bad weather conditions","恶劣天气"],["attention everyone","各位请注意"],["provide us with","为我们提供"]],"grammar":"has been delayed 现在完成时被动，表\"已被延误\"；due to + 名词 表原因。","usage":"对应第一单元第3课「Flight Is Delayed（航班延误）」，领队需第一时间通知团员并安抚。"},{"speaker":"团员","side":"other","en":"How long will we have to wait?","zh":"我们要等多久？"},{"speaker":"领队","side":"leader","en":"The new departure time is 5:30 PM. Please gather at Gate 12 by 4:30 PM.","zh":"新的出发时间是下午五点半。请于下午四点半在12号口集合。","words":[["departure time","出发时间"],["gather at","在...集合"],["by 4:30 PM","在下午四点半之前"],["Gate 12","12号口"],["I've lost","我丢了"]],"grammar":"departure 出发（← depart）；gather 集合；by + 时间 表\"在...之前\"。","usage":"延误后重新安排集合——给团员明确的时间地点。"},{"speaker":"团员","side":"other","en":"What about dinner? It's a long wait.","zh":"晚饭怎么办？要等这么久。","words":[["a long wait","等很久"]]},{"speaker":"领队","side":"leader","en":"The airline will provide us with free meals and accommodation. Please keep your boarding pass as a meal voucher.","zh":"航空公司将提供免费餐食和住宿，请保留登机牌作为餐券。","words":[["provide us with","为我们提供"],["accommodation","住宿"],["meal voucher","餐券"],["keep...as","保留...作为"],["departure time","出发时间"]],"grammar":"provide sb with sth 为某人提供某物；as 作为；voucher 凭证/券。","usage":"延误后领队争取权益——告知团员航空公司的补偿措施。"},{"speaker":"团员","side":"other","en":"OK, understood. See you at 4:30 at Gate 12.","zh":"好的，明白。4点半12号口见。"}]},{"id":"d014","unit":"第一单元 在机场","unit_id":1,"name":"3.2 登机牌丢失","scene":"在机场","turns":[{"speaker":"团员","side":"other","en":"I've lost my boarding pass! What should I do?","zh":"我的登机牌丢了！我该怎么办？","words":[["I've lost","我丢了"],["boarding pass","登机牌"],["What should I do","我该怎么办"],["Don't worry","别担心"]],"grammar":"I've lost = I have lost 现在完成时；should 表建议。","usage":"对应第一单元第3课「Boarding Pass Is Lost（登机牌丢失）」，模拟团员紧急求助场景。"},{"speaker":"领队","side":"leader","en":"Don't worry. Go back to the check-in counter with your passport and they will reissue one for you.","zh":"别担心。带着护照返回值机柜台，他们会给你补办一张。","words":[["Don't worry","别担心"],["go back to","返回"],["reissue","补发/重新发"],["check-in counter","值机柜台"],["one piece of luggage","一件行李"]],"grammar":"Don't worry 安抚用语；reissue = re 重新 + issue 签发；will reissue 将来时。","usage":"领队应对登机牌丢失的标准处理流程。"},{"speaker":"团员","side":"other","en":"Will it take long? Boarding starts in 30 minutes.","zh":"要很久吗？30分钟后就开始登机了。"},{"speaker":"领队","side":"leader","en":"It only takes a few minutes. I'll go with you.","zh":"只要几分钟，我陪你一起去。"},{"speaker":"值机员","side":"other","en":"May I see your passport? ... Here is your new boarding pass. Have a nice flight.","zh":"请出示护照……这是您的新登机牌，旅途愉快。","words":[["reissue","补办"],["new boarding pass","新登机牌"]]},{"speaker":"团员","side":"other","en":"Thank you so much!","zh":"太感谢了！"}]},{"id":"d015","unit":"第一单元 在机场","unit_id":1,"name":"3.3 行李件数短缺","scene":"在机场","turns":[{"speaker":"团员","side":"other","en":"One piece of my luggage is missing. It didn't come out on the carousel.","zh":"我有一件行李不见了，没在转盘上出来。","words":[["one piece of luggage","一件行李"],["missing","不见了"],["carousel","转盘"],["didn't come out","没有出来"],["Lost and Found","失物招领"]],"grammar":"is missing 现在进行时表状态\"不见了\"；come out 出来（行李从传送带出来）。","usage":"对应第一单元第3课「Luggage Is Missing（行李件数短缺）」，提取行李时的常见问题。"},{"speaker":"领队","side":"leader","en":"Let's go to the Lost and Found counter. I'll help you fill out the Property Irregularity Report.","zh":"我们去行李查询柜台，我帮你填行李异常报告单。","words":[["Lost and Found","失物招领"],["fill out","填写"],["Property Irregularity Report","行李异常报告"],["has been sent to","被送往"]],"grammar":"Lost and Found 失物招领处；irregularity 异常（ir不+regular常规+ity名词）；Property 此处指行李。","usage":"领队处理行李丢失的标准流程——填PIR报告是追回行李的关键步骤。"},{"speaker":"行李查询处职员","side":"other","en":"Can you describe your luggage? Color, size and brand, please.","zh":"请描述一下您的行李：颜色、尺寸和品牌。","words":[["describe","描述"],["brand","品牌"]]},{"speaker":"团员","side":"other","en":"It's a black 26-inch suitcase with a red ribbon on the handle.","zh":"黑色26寸行李箱，把手上系着红丝带。","words":[["suitcase","行李箱"],["ribbon","丝带"],["handle","把手"]]},{"speaker":"行李查询处职员","side":"other","en":"We will contact your hotel as soon as we find it. Here is your copy of the report.","zh":"找到后我们会立即联系您的酒店。这是报告单副本。","words":[["contact","联系"],["copy of the report","报告单副本"]]}]},{"id":"d016","unit":"第一单元 在机场","unit_id":1,"name":"3.4 行李错挂航班","scene":"在机场","turns":[{"speaker":"团员","side":"other","en":"My luggage has been sent to the wrong flight. It was tagged for Tokyo but I'm in Singapore.","zh":"我的行李被错挂到了别的航班上。行李牌上是东京，但我在新加坡。","words":[["has been sent to","被送往"],["wrong flight","错误航班"],["tagged for","标签显示"],["Tokyo","东京"],["trace","追踪"]],"grammar":"has been sent 现在完成时被动；tag 作动词\"贴标签\"；tagged for 被标注为去往...。","usage":"对应第一单元第3课「Luggage Is Misplaced（行李错挂航班）」，比行李件数短缺更严重——错运到别的目的地。"},{"speaker":"行李查询处职员","side":"other","en":"The airline will trace your luggage and deliver it to your hotel within 24 hours. Here's the reference number.","zh":"航空公司会追踪你的行李并在24小时内送到你的酒店。这是查询编号。","words":[["trace","追踪"],["deliver","送达"],["reference number","查询编号"],["within 24 hours","在24小时内"]],"grammar":"will trace and deliver 将来时并列谓语；within + 时间 在...内；reference number 追踪/查询号。","usage":"行李错挂后的善后方案——给团员一个明确的时间预期和追踪方式。"},{"speaker":"团员","side":"other","en":"What if I need my things tonight?","zh":"我今晚要用行李里的东西怎么办？"},{"speaker":"领队","side":"leader","en":"Keep this reference number safe. I'll call the airline first thing tomorrow morning.","zh":"收好这个查询编号。我明早一早就给航空公司打电话。","words":[["reference number","查询编号"],["first thing in the morning","一早就办"]]}]},{"id":"d017","unit":"第二单元 在飞机上","unit_id":2,"name":"第1课 机上餐饮","scene":"在飞机上","turns":[{"speaker":"空乘","side":"other","en":"What would you like to eat, Chinese food or Western food?","zh":"您要吃什么，中餐还是西餐？","words":[["What would you like","您想要什么"],["Chinese food","中餐"],["Western food","西餐"],["eat","吃"],["chicken with rice","鸡肉饭"]],"grammar":"What would you like to... 礼貌询问；or 表选择。","usage":"对应《领队英语》第二单元第1课「机上餐饮」，领队帮团员翻译点餐选项。"},{"speaker":"游客","side":"other","en":"I'd like chicken with rice, please. And a cup of orange juice.","zh":"我要鸡肉饭，再来一杯橙汁。","words":[["chicken with rice","鸡肉饭"],["a cup of","一杯"],["orange juice","橙汁"],["I'd like","我想要"],["some more","再来一些"]],"grammar":"I'd like = I would like 礼貌表达需求；with 搭配/配以。","usage":"领队帮团员选择餐食和饮品——鸡肉饭是长途航班常见选项。"},{"speaker":"空乘","side":"other","en":"Here you are. Enjoy your meal.","zh":"给您，请慢用。","words":[["Enjoy your meal","请慢用"]]},{"speaker":"空乘","side":"other","en":"Would you like anything to drink? We have sodas, juices, beer and wine.","zh":"要喝点什么吗？我们有汽水、果汁、啤酒和葡萄酒。","words":[["anything to drink","喝的东西"],["sodas","汽水"],["beer","啤酒"],["wine","葡萄酒"],["feeling airsick","感到晕机"]],"grammar":"anything to drink 不定式作定语修饰不定代词；Would you like... 礼貌提供。","usage":"机上饮料服务标准问句，领队可帮不懂英语的团员翻译选项。"},{"speaker":"游客","side":"other","en":"Could I have some more coffee, please?","zh":"能再给我来点咖啡吗？","words":[["some more","再来一些"],["coffee","咖啡"],["Could I have","我能要...吗"],["anything to drink","喝的东西"]],"grammar":"Could I have... 礼貌请求；some more 再来一些（more表额外的）。","usage":"要求续杯，对应第一课餐饮服务拓展内容。"},{"speaker":"空乘","side":"other","en":"Certainly. With milk or sugar?","zh":"好的。要加奶或糖吗？","words":[["milk or sugar","奶或糖"]]}]},{"id":"d018","unit":"第二单元 在飞机上","unit_id":2,"name":"第2课 照顾不适游客","scene":"在飞机上","turns":[{"speaker":"领队","side":"leader","en":"Are you feeling airsick? Would you like some medicine?","zh":"你晕机吗？要不要吃点药？","words":[["feeling airsick","感到晕机"],["medicine","药"],["would you like","你想要吗"],["flight attendant","乘务员"]],"grammar":"feel + 形容词（airsick）表\"感觉...\"；airsick 晕机（仿 seasick 晕船, carsick 晕车）。","usage":"对应《领队英语》第二单元第2课「照顾不适游客」，领队主动关心身体不适团员。"},{"speaker":"游客","side":"other","en":"Yes, I feel dizzy and a little nauseous.","zh":"是的，我头晕，还有点恶心。","words":[["dizzy","头晕的"],["nauseous","恶心的"]]},{"speaker":"领队","side":"leader","en":"I'll ask the flight attendant for an airsickness bag and some medicine.","zh":"我帮你向乘务员要一个呕吐袋和一些药。","words":[["flight attendant","乘务员"],["airsickness bag","呕吐袋"],["I'll ask for","我会要..."],["deep breaths","深呼吸"]],"grammar":"I'll ask sb for sth 我帮某人要某物；airsickness 晕机（名词）；bag 袋。","usage":"领队代表团员向乘务员求助——标准服务流程。"},{"speaker":"游客","side":"other","en":"Thank you. That's very kind of you.","zh":"谢谢，太麻烦你了。"},{"speaker":"领队","side":"leader","en":"Try to take deep breaths and keep your head still. The seat pocket has an airsickness bag.","zh":"试着深呼吸，头不要动。座椅口袋里有个呕吐袋。","words":[["deep breaths","深呼吸"],["keep your head still","头不动"],["seat pocket","座椅口袋"],["airsickness bag","呕吐袋"],["a blanket","一条毯子"]],"grammar":"take deep breaths 深呼吸；keep + 宾语 + still 使...保持不动；seat pocket 座椅背后的口袋。","usage":"安抚晕机团员的实操技巧，体现领队的专业和经验。"},{"speaker":"游客","side":"other","en":"OK... I feel a little better now. Thanks.","zh":"好的……现在感觉好些了，谢谢。"}]},{"id":"d019","unit":"第二单元 在飞机上","unit_id":2,"name":"第3课 要求机上服务","scene":"在飞机上","turns":[{"speaker":"游客","side":"other","en":"Excuse me, could I have a blanket, please? It's a bit cold.","zh":"打扰一下，能给我一条毯子吗？有点冷。","words":[["a blanket","一条毯子"],["a bit cold","有点冷"],["Excuse me","打扰一下"],["earphones","耳机"]],"grammar":"Could I have... please? 礼貌请求物品；a bit + 形容词 表\"有点...\"；blanket 机上常用物品。","usage":"对应《领队英语》第二单元第3课「要求机上服务」，要毯子是最高频的机上请求之一。"},{"speaker":"空乘","side":"other","en":"Certainly. Here is a blanket for you.","zh":"好的，给您毯子。","words":[["blanket","毯子"]]},{"speaker":"游客","side":"other","en":"These earphones don't seem to be working. Could you bring me a new pair?","zh":"这副耳机好像坏了，能给我换副新的吗？","words":[["earphones","耳机"],["don't seem to be working","好像坏了"],["a new pair","一副新的"],["duty-free items","免税商品"]],"grammar":"don't seem to be working 似乎不工作（seem to do 似乎；work 此处表\"正常运转\"）。","usage":"机上娱乐设施求助——第二个高频服务请求。"},{"speaker":"空乘","side":"other","en":"I'm sorry about that. I'll bring you a new pair right away.","zh":"很抱歉，我马上给您换一副新的。","words":[["a new pair","一副新的"],["right away","马上"]]},{"speaker":"游客","side":"other","en":"I'd like to buy some duty-free items from the in-flight catalog. Could you help me with this?","zh":"我想从机上目录买些免税品。你能帮我吗？","words":[["duty-free items","免税商品"],["in-flight catalog","机上购物目录"],["buy","购买"],["help me with","帮我..."],["adjust","调整"]],"grammar":"duty-free 免税的；in-flight 飞行中的（复合形容词）；catalog 目录。","usage":"第6版新增内容——机上购买免税品，对应第三课服务扩展。"},{"speaker":"空乘","side":"other","en":"Of course. You can pay by credit card or cash. Which items would you like?","zh":"可以。可以刷信用卡或付现金。您想要哪些商品？","words":[["credit card","信用卡"],["duty-free items","免税商品"]]},{"speaker":"游客","side":"other","en":"Could you adjust the reading light for me? It's not bright enough.","zh":"能帮我调一下阅读灯吗？不够亮。","words":[["adjust","调整"],["reading light","阅读灯"],["bright enough","够亮"],["not...enough","不够"],["filled out","填完"]],"grammar":"adjust...for sb 为某人调节...；not + adj + enough 不够...；bright 亮。","usage":"机上照明调节——常见但容易被忽略的机上服务请求。"},{"speaker":"空乘","side":"other","en":"Let me adjust it for you. Is that better now?","zh":"我来帮您调一下。现在好点了吗？","words":[["adjust","调节"],["reading light","阅读灯"]]}]},{"id":"d020","unit":"第二单元 在飞机上","unit_id":2,"name":"第4课 抵达目的地前","scene":"在飞机上","turns":[{"speaker":"领队","side":"leader","en":"Has everyone filled out the entry card and customs declaration form?","zh":"大家都填好入境卡和海关申报单了吗？","words":[["filled out","填完"],["entry card","入境卡"],["customs declaration form","海关申报单"],["everyone","每个人"],["need help with","需要帮助"]],"grammar":"fill out 填写（表单）；现在完成时 has filled out 表\"已完成\"。","usage":"对应《领队英语》第二单元第4课「抵达目的地前」，入境前必须完成填表。"},{"speaker":"游客","side":"other","en":"I'm not sure how to fill in this part — the address section.","zh":"这部分我不太会填——地址栏。","words":[["fill in","填写"],["address section","地址栏"]]},{"speaker":"领队","side":"leader","en":"If you need help with the forms, please let me know. I'll come to your seat.","zh":"填表需要帮助的话请告诉我，我到您座位上来。","words":[["need help with","需要帮助"],["forms","表格"],["let me know","告诉我"],["come to your seat","到您座位"],["set your watch","调表"]],"grammar":"need help with + 名词 需要某方面的帮助；let me know 告知我；come to 来到。","usage":"领队主动巡视帮填表，是贴心服务的体现。"},{"speaker":"游客","side":"other","en":"Thank you! It's my first time filling in these forms.","zh":"谢谢！我第一次填这种表。"},{"speaker":"领队","side":"leader","en":"Please remember to set your watch to local time. The local time is now 3:00 PM.","zh":"请记得把手表调到当地时间。现在是下午三点。","words":[["set your watch","调表"],["local time","当地时间"],["remember to","记得要..."]],"grammar":"set...to... 把...调到...；remember to do 记得做某事（未做）；local time 当地时间。","usage":"降临前提醒时差调整——帮助团员尽快适应目的地作息。"},{"speaker":"游客","side":"other","en":"Got it. See you at the arrivals hall!","zh":"好的，到达大厅见！","words":[["arrivals hall","到达大厅"]]}]},{"id":"d021","unit":"第三单元 在酒店","unit_id":3,"name":"第1课 入住登记","scene":"在酒店","turns":[{"speaker":"领队","side":"leader","en":"Good afternoon. We are a tour group from China Comfort Travel Agency. My name is Ma Gang.","zh":"下午好。我们是中国康辉旅行社的旅游团，我叫马刚。","words":[["tour group","旅游团"],["China Comfort Travel Agency","中国康辉旅行社"],["Good afternoon","下午好"],["booked","预订了"]],"grammar":"from + 机构名 表\"来自某机构\"；介词 from 引出归属；tour group 旅游团。","usage":"对应《领队英语》第三单元第1课「入住登记」，领队在酒店前台的标准开场白。"},{"speaker":"前台","side":"other","en":"Good afternoon, Mr. Ma. Welcome! Let me check your reservation.","zh":"下午好，马先生。欢迎！我查一下您的预订。","words":[["reservation","预订"]]},{"speaker":"领队","side":"leader","en":"Our agency booked five double rooms three weeks ago. The reservation should be under our agency's name.","zh":"我们旅行社三周前预订了五间双人房。预订应该在我们旅行社名下。","words":[["booked","预订了"],["double rooms","双人房"],["three weeks ago","三周前"],["under our agency's name","在我们旅行社名下"],["name list","名单"]],"grammar":"book 预订，过去式 booked；under one's name 在某人的名下；three weeks ago 三周前。","usage":"向酒店前台确认团队预订——报出预订单位和日期。"},{"speaker":"前台","side":"other","en":"Yes, I found it. Five double rooms for two nights, under China Comfort Travel.","zh":"找到了。康辉旅行社名下，五间双人房，住两晚。","words":[["double rooms","双人房"],["under...name","在...名下"]]},{"speaker":"领队","side":"leader","en":"Here are the name list of our group and all the passports. Could we have the rooms on the same floor?","zh":"这是我们团名单和所有护照。能把房间安排在同一楼层吗？","words":[["name list","名单"],["on the same floor","在同一楼层"],["passports","护照"],["could we have","能给我们安排"],["extra bed","加床"]],"grammar":"name list 名单；on the same floor 同一楼层；could we have... 礼貌请求。","usage":"领队争取团队房间集中安排——方便管理和沟通。"},{"speaker":"前台","side":"other","en":"Certainly. I'll arrange rooms 301 to 305, all on the third floor. Here are your key cards.","zh":"可以。安排301到305房，都在三楼。这是房卡。","words":[["key cards","房卡"],["on the same floor","在同一楼层"]]},{"speaker":"领队","side":"leader","en":"Great. What time is breakfast served?","zh":"太好了。早餐几点开始供应？","words":[["breakfast is served","早餐供应"]]},{"speaker":"前台","side":"other","en":"From 6:30 to 9:30 AM, in the restaurant on the second floor.","zh":"早上6点半到9点半，在二楼餐厅。"}]},{"id":"d022","unit":"第三单元 在酒店","unit_id":3,"name":"第2课 酒店内服务","scene":"在酒店","turns":[{"speaker":"领队","side":"leader","en":"Could we have an extra bed and some more bath towels in room 305, please?","zh":"305房间能加一张床和多送几条浴巾吗？","words":[["extra bed","加床"],["bath towels","浴巾"],["some more","更多一些"],["room 305","305房"],["laundry","要洗的衣物"]],"grammar":"extra + 名词 表\"额外的\"；some more 再来一些；bath towel 浴巾。","usage":"对应《领队英语》第三单元第2课「酒店内服务」，加床和补充日用品是常见服务请求。"},{"speaker":"前台","side":"other","en":"No problem. We'll send them up within 30 minutes.","zh":"没问题，30分钟内送到。","words":[["send them up","送上去"],["within 30 minutes","30分钟内"]]},{"speaker":"游客","side":"other","en":"I have some laundry that needs washing. When can I expect it back?","zh":"我有一些衣服需要洗。什么时候能送回来？","words":[["laundry","要洗的衣物"],["needs washing","需要洗"],["expect it back","期待送回"],["when can I","我什么时候能"],["Wi-Fi password","无线密码"]],"grammar":"need + doing = need to be done（主动形式被动含义）；laundry 要洗的衣物（不可数）。","usage":"酒店洗衣服务请求——对应第二课核心服务场景，需了解洗衣单填写。"},{"speaker":"前台","side":"other","en":"If we collect it before 9 AM, it will be returned the same evening.","zh":"早上9点前收走的话，当晚就能送回。","words":[["laundry","待洗衣物"],["the same evening","当晚"]]},{"speaker":"游客","side":"other","en":"Is the Wi-Fi password the same for all rooms? Where can I find it?","zh":"所有房间的Wi-Fi密码是一样的吗？在哪里能找到？","words":[["Wi-Fi password","无线密码"],["the same for all","对所有都一样"],["where can I find","哪里能找到"],["hot water","热水"]],"grammar":"the same for... 对...来说相同；where can I find... 询问位置。","usage":"第6版新增内容——现代旅行中Wi-Fi已成为必需品，领队需帮团员获取网络信息。"},{"speaker":"前台","side":"other","en":"Yes, one password for the whole hotel. It's printed on the card in your room.","zh":"是的，全酒店同一个密码，印在您房间里的卡片上。","words":[["Wi-Fi password","Wi-Fi密码"],["printed on","印在...上"]]}]},{"id":"d023","unit":"第三单元 在酒店","unit_id":3,"name":"第3课 处理投诉","scene":"在酒店","turns":[{"speaker":"游客","side":"other","en":"There's no hot water in room 502. Could you send someone to check it?","zh":"502房间没有热水，能派人来看一下吗？","words":[["hot water","热水"],["send someone","派人"],["check it","查看一下"],["room 502","502房"],["air conditioner","空调"]],"grammar":"there's no + 名词 表\"没有...\"；send someone to do 派人做某事。","usage":"对应《领队英语》第三单元第3课「处理投诉」，热水问题是酒店最常见的投诉之一。"},{"speaker":"领队","side":"leader","en":"I'm sorry for the inconvenience. I'll contact the front desk and have them fix it right away.","zh":"很抱歉给您造成不便。我马上联系前台让他们来修。","words":[["inconvenience","不便"],["front desk","前台"],["fix it","修理"],["right away","马上"],["wake-up call","叫早电话"]],"grammar":"I'm sorry for + 名词 为...道歉；have sb do sth 让某人做某事；right away 立刻。","usage":"领队处理投诉的标准话术——先道歉、再行动、给承诺。"},{"speaker":"游客","side":"other","en":"The air conditioner in my room is not working properly. It's making a loud noise.","zh":"我房间的空调不正常，发出很大的噪音。","words":[["air conditioner","空调"],["not working properly","不正常运转"],["loud noise","大声响"],["making","发出"],["inconvenience","不便"]],"grammar":"not working properly 不能正常运转；make a noise 发出声响；air conditioner 空调。","usage":"第6版新增客房投诉场景——空调及设施故障处理。"},{"speaker":"领队","side":"leader","en":"I'll report that too. The hotel engineer will come to check within 20 minutes.","zh":"这个我也一起报修，酒店工程师傅20分钟内会来检查。","words":[["engineer","工程师傅"],["report","报修/报告"]]},{"speaker":"前台","side":"other","en":"This is the front desk. We've sent the engineer to rooms 502 and 508. Sorry for the trouble.","zh":"这里是前台。我们已派工程师傅去502和508房，给您添麻烦了。","words":[["front desk","前台"]]},{"speaker":"游客","side":"other","en":"Thank you for your quick help!","zh":"谢谢你处理得这么快！"}]},{"id":"d024","unit":"第三单元 在酒店","unit_id":3,"name":"第4课 结账退房","scene":"在酒店","turns":[{"speaker":"领队","side":"leader","en":"Could you arrange a wake-up call at 5:30 AM for all our group rooms?","zh":"能为我们团所有房间安排早上五点半的叫早服务吗？","words":[["wake-up call","叫早电话"],["at 5:30 AM","早上五点半"],["all our group rooms","团所有房间"],["arrange","安排"],["have your luggage outside","把行李放在门外"]],"grammar":"arrange...for... 为...安排...；wake-up call 叫醒服务；at + 时间 在几点。","usage":"对应《领队英语》第三单元第4课「结账退房」，叫早是退房日标准流程——赶早班机必备。"},{"speaker":"前台","side":"other","en":"Certainly. 5:30 AM wake-up calls for all ten rooms.","zh":"好的，十个房间全部安排5点半叫早。","words":[["wake-up call","叫早服务"]]},{"speaker":"领队","side":"leader","en":"Please have your luggage outside your room by 6:00 AM. The bellman will collect them.","zh":"请在早上六点前将行李放在房间门外，行李员会来收取。","words":[["have your luggage outside","把行李放在门外"],["bellman","行李员"],["collect","收取"],["by 6:00 AM","在早上六点前"],["check out","退房"]],"grammar":"have + 宾语 + 副词（outside）使...处于某状态；by + 时间 在...之前；bellman 行李员。","usage":"退房日出行李的标准指令——确保所有行李准时装车。"},{"speaker":"团员","side":"other","en":"Understood. Bags outside the door by 6 AM.","zh":"明白，早上6点前行李放门口。"},{"speaker":"领队","side":"leader","en":"I'd like to check out now. Here are the room keys. Could you prepare the bill for all 10 rooms?","zh":"我们现在退房。这是房卡。能准备全部十间房的账单吗？","words":[["check out","退房"],["prepare the bill","准备账单"],["all 10 rooms","全部十间房"],["room keys","房卡"],["store our luggage","寄存行李"]],"grammar":"check out 退房（结账离店）；prepare the bill 准备账单；for all 10 rooms 介短修饰 bill。","usage":"对应第四课核心对话——领队代表团队统一结账。"},{"speaker":"前台","side":"other","en":"Here is the bill for ten rooms. Please check it. Any minibar charges?","zh":"这是十间房的账单，请核对。迷你吧有消费吗？","words":[["bill","账单"],["minibar charges","迷你吧消费"]]},{"speaker":"领队","side":"leader","en":"No minibar charges. Everything looks correct.","zh":"没有迷你吧消费，账单没问题。"},{"speaker":"领队","side":"leader","en":"Could we store our luggage at the bell desk after check-out? Our flight is not until 8:00 PM.","zh":"退房后能把行李寄存在行李寄存处吗？我们的航班晚上八点才飞。","words":[["store our luggage","寄存行李"],["bell desk","行李服务台"],["after check-out","退房后"],["not until 8 PM","直到晚上八点才"]],"grammar":"store 寄存；after check-out 退房后（介词短语）；not until... 直到...才。","usage":"退房后寄存行李——离店日和航班时间不衔接时的标准操作。"},{"speaker":"前台","side":"other","en":"Of course. Here are your luggage tags. You can collect them anytime before midnight.","zh":"可以。这是行李牌，今晚12点前随时可以来取。","words":[["luggage tags","行李牌"],["collect","领取"]]}]},{"id":"d025","unit":"第四单元 配合地陪","unit_id":4,"name":"第1课 与地陪在机场见面","scene":"配合地陪","turns":[{"speaker":"领队","side":"leader","en":"Excuse me, are you the local guide from CTS? I'm the tour leader from Beijing.","zh":"请问，你是中旅的地陪吗？我是来自北京的领队。","words":[["local guide","地陪/地接导游"],["CTS","中国旅行社"],["tour leader","领队"],["from Beijing","来自北京"],["in total","总共"]],"grammar":"Are you the...from... 确认身份；local guide 地陪（区别于 tour leader 领队）；CTS=China Travel Service。","usage":"对应《领队英语》第四单元第1课「与地陪在机场见面」，下飞机后第一件事——和地陪接上头。"},{"speaker":"地陪","side":"other","en":"Yes, I'm Li Ming from CTS. Welcome to Kunming, Mr. Wang!","zh":"是的，我是中旅的李明。王先生，欢迎来到昆明！","words":[["local guide","地陪"],["CTS","中国旅行社"]]},{"speaker":"领队","side":"leader","en":"How many pieces of luggage do we have in total? Let's count before we leave the airport.","zh":"我们一共有多少件行李？离开机场前我们点数核对一下。","words":[["in total","总共"],["count","清点"],["before we leave","离开前"],["pieces of luggage","件行李"],["All the luggage","所有行李"]],"grammar":"in total 总计；before we leave 离开前（before引导时间状语从句）；count 清点。","usage":"对应第一课行李交接环节——领队和地陪共同核对行李件数。"},{"speaker":"地陪","side":"other","en":"Good idea. Let me count with you... Twenty-one pieces in total.","zh":"好主意。我跟您一起数……一共21件。","words":[["in total","总共"],["count","点数"]]},{"speaker":"领队","side":"leader","en":"All the luggage is here. Please sign this luggage confirmation slip.","zh":"所有行李都齐了。请签一下行李确认单。","words":[["All the luggage","所有行李"],["sign","签字"],["confirmation slip","确认单"],["brief introduction","简要介绍"]],"grammar":"All the luggage is... luggage不可数名词，用单数谓语动词；confirmation slip 确认单。","usage":"行李交接的正式收尾——签字确认以防后续纠纷。"},{"speaker":"地陪","side":"other","en":"All right, signed. The bus is waiting outside. Let's go!","zh":"好的，签好了。车在外面等，我们走吧！","words":[["sign","签字"],["confirmation slip","确认单"]]}]},{"id":"d026","unit":"第四单元 配合地陪","unit_id":4,"name":"第2课 与地陪沟通","scene":"配合地陪","turns":[{"speaker":"领队","side":"leader","en":"Let me give you a brief introduction about our group. Most of them are first-time visitors.","zh":"我先简要介绍一下我们团的情况。大部分团员是第一次来。","words":[["brief introduction","简要介绍"],["first-time visitors","首次来访者"],["most of them","他们大部分"],["about our group","关于我们团"],["go over","过一遍/审查"]],"grammar":"give sb a brief introduction 给某人简要介绍；first-time 复合形容词\"首次的\"。","usage":"对应《领队英语》第四单元第2课「与地陪沟通」，领队向地陪介绍团员背景。"},{"speaker":"地陪","side":"other","en":"I see. Any special requirements — meals, pace, anything?","zh":"明白。有什么特别要求吗——餐饮、节奏方面？","words":[["special requirements","特殊要求"],["pace","节奏"]]},{"speaker":"领队","side":"leader","en":"Could we go over the itinerary together? I have a few suggestions from our group members.","zh":"我们一起过一遍行程好吗？团员们有一些建议。","words":[["go over","过一遍/审查"],["itinerary","行程"],["suggestions","建议"],["group members","团员"],["free time","自由时间"]],"grammar":"go over 仔细检查/过一遍；Could we... 礼貌提议；itinerary 行程安排。","usage":"对应第二课商谈旅游行程安排——领队代表团员与地陪协商调整。"},{"speaker":"地陪","side":"other","en":"Sure. Let's go through it day by day.","zh":"好的，我们按天过一遍。","words":[["go through","过一遍"],["day by day","逐日"]]},{"speaker":"领队","side":"leader","en":"Some tourists would like to have more free time for shopping. Can we adjust the afternoon schedule?","zh":"有些游客想多一些自由购物时间。我们能调整下午的安排吗？","words":[["free time","自由时间"],["shopping","购物"],["adjust","调整"],["afternoon schedule","下午安排"],["local guide","地陪"]],"grammar":"would like to have 想要有；more...for... 更多...用于...；adjust the schedule 调整行程。","usage":"对应第二课转达游客要求——领队是团员和地陪之间的桥梁。"},{"speaker":"地陪","side":"other","en":"We can shorten the museum visit to one hour and add free time at the market. How about that?","zh":"可以把博物馆参观压缩到一小时，空出时间逛集市。您看行吗？","words":[["shorten","缩短"],["free time","自由活动时间"]]},{"speaker":"领队","side":"leader","en":"That works. I'll announce it to the group tonight.","zh":"可以，我今晚向全团宣布。","words":[["announce","宣布"]]}]},{"id":"d027","unit":"第四单元 配合地陪","unit_id":4,"name":"第3课 配合地陪工作","scene":"配合地陪","turns":[{"speaker":"领队","side":"leader","en":"Ladies and gentlemen, this is Mr. Liu, our local guide. He will take care of us during our stay.","zh":"各位贵宾，这位是刘先生，我们的地陪。在我们停留期间他将照顾大家。","words":[["local guide","地陪"],["take care of us","照顾我们"],["during our stay","停留期间"],["during the tour","游览中"]],"grammar":"This is...介绍人物；will take care of 将来时；during our stay 在停留期间。","usage":"对应《领队英语》第四单元第3课「配合地陪工作」——领队向全团介绍地陪。"},{"speaker":"地陪","side":"other","en":"Hello everyone, welcome! I hope you'll all enjoy your stay here.","zh":"大家好，欢迎！希望大家在这里玩得开心。"},{"speaker":"领队","side":"leader","en":"If you have any questions during the tour, please feel free to ask either me or Mr. Liu.","zh":"游览中如有任何问题，请随时问我和刘先生。","words":[["during the tour","游览中"],["feel free to","随意/尽管"],["ask either me or","问我或"],["any questions","任何问题"],["a bit too spicy","太辣了一点"]],"grammar":"feel free to do 随意做/尽管做；either A or B A或B（二者之一）；during the tour 在游览期间。","usage":"领队和地陪分工明确——让团员知道有困难找谁。"},{"speaker":"团员","side":"other","en":"Understood. Thanks, Mr. Liu!","zh":"知道了，谢谢刘先生！"},{"speaker":"领队","side":"leader","en":"Excuse me, Mr. Liu, the food at lunch was a bit too spicy for some of our group members. Could tomorrow's meals be milder?","zh":"刘先生，不好意思，午餐对一些团员来说太辣了。明天的餐能清淡一点吗？","words":[["a bit too spicy","太辣了一点"],["group members","团员"],["milder","更清淡"],["tomorrow's meals","明天的餐"],["lost his passport","丢了护照"]],"grammar":"a bit too + 形容词 有点太...；milder 更清淡（mild比较级）；Could...be... 请求调整。","usage":"对应第三课安排就餐及交涉饭菜质量——领队代表团员反馈问题。"},{"speaker":"地陪","side":"other","en":"I'm sorry to hear that. I'll tell the restaurant to prepare milder dishes from tomorrow.","zh":"很抱歉。我明天起让餐厅做清淡一些。","words":[["milder dishes","清淡的菜"],["spicy","辣的"]]},{"speaker":"领队","side":"leader","en":"Thank you. The group will really appreciate it.","zh":"谢谢，团员们会很感激的。","words":[["appreciate","感激"]]}]},{"id":"d028","unit":"第四单元 配合地陪","unit_id":4,"name":"第4课 特殊情况处理","scene":"配合地陪","turns":[{"speaker":"领队","side":"leader","en":"One of our tourists has lost his passport. When should we report to the police and the embassy?","zh":"我们一个团员的护照丢了。我们应该什么时候去警察局和大使馆报案？","words":[["lost his passport","丢了护照"],["report to","向...报告"],["the police","警察"],["embassy","大使馆"],["missing one tourist","走丢一位游客"]],"grammar":"has lost 现在完成时；report to... 向...报告；embassy 大使馆（注意重音在第一音节）。","usage":"对应《领队英语》第四单元第4课「应对特殊情况」——护照遗失是最严重的突发事件之一。"},{"speaker":"地陪","side":"other","en":"Right away — first to the police station for a loss report, then to the consulate for a travel document.","zh":"马上办——先去警察局开遗失证明，再去领事馆补办旅行证。","words":[["police station","警察局"],["consulate","领事馆"],["loss report","遗失证明"]]},{"speaker":"领队","side":"leader","en":"We're missing one tourist. She was last seen at the souvenir shop near the entrance.","zh":"我们走丢了一位游客。最后看到她在入口附近的纪念品店。","words":[["missing one tourist","走丢一位游客"],["last seen at","最后被看到在"],["souvenir shop","纪念品店"],["near the entrance","入口附近"],["feeling sick","不舒服"]],"grammar":"is missing 不见了/走丢了；was last seen 最后被看见（被动语态）。","usage":"对应第四课寻找走失游客——景点人多时最常见的突发事件。"},{"speaker":"地陪","side":"other","en":"I'll ask the site office to make a broadcast. Let's split up and search near the entrance.","zh":"我让景区管理处广播寻人。我们分头在入口附近找。","words":[["make a broadcast","广播寻人"],["split up","分头"]]},{"speaker":"领队","side":"leader","en":"One tourist is feeling sick after lunch. She might have food poisoning. We need to see a doctor immediately.","zh":"一位游客午饭后不舒服，可能是食物中毒。我们需要马上去看医生。","words":[["feeling sick","不舒服"],["food poisoning","食物中毒"],["see a doctor","看医生"],["immediately","立刻"],["in case of emergency","如遇紧急情况"]],"grammar":"feel sick 感到不适/恶心；might have 可能得了；food poisoning 食物中毒；need to do 需要做。","usage":"对应第四课面对突发疾病——食物中毒需要立即就医。"},{"speaker":"地陪","side":"other","en":"There's a clinic five minutes away. I'll call a taxi right now.","zh":"五分钟车程外有家诊所，我现在叫车。","words":[["clinic","诊所"],["right now","马上"]]},{"speaker":"领队","side":"leader","en":"In case of emergency, please remain calm and follow my instructions. I will handle the situation.","zh":"遇紧急情况请保持冷静，听从我的指挥。我来处理。","words":[["in case of emergency","如遇紧急情况"],["remain calm","保持冷静"],["follow my instructions","听从指挥"],["handle the situation","处理情况"]],"grammar":"in case of + 名词 如遇/万一...；remain 系动词+形容词；handle 处理。","usage":"应对一切突发情况的万能话术——领队的镇定是团队的安全感来源。"}]},{"id":"d029","unit":"第五单元 自由活动日","unit_id":5,"name":"第1课 货币兑换","scene":"自由活动日","turns":[{"speaker":"领队","side":"leader","en":"Excuse me, where is the nearest currency exchange? I need to change some US dollars into Thai baht.","zh":"请问最近的货币兑换处在哪里？我需要把美元换成泰铢。","words":[["currency exchange","货币兑换"],["change...into","把...换成"],["Thai baht","泰铢"],["nearest","最近的"],["exchange rate","汇率"]],"grammar":"the nearest + 名词 最近的...；change A into B 把A换成B；currency 货币。","usage":"对应《领队英语》第五单元第1课「货币兑换」，自由活动日最迫切的需求——换当地货币。"},{"speaker":"路人","side":"other","en":"There's one around the corner, next to the bank.","zh":"拐角处就有一家，在银行旁边。","words":[["around the corner","在拐角处"]]},{"speaker":"领队","side":"leader","en":"What's the exchange rate for US dollars today? And is there any service charge?","zh":"今天美元汇率多少？有手续费吗？","words":[["exchange rate","汇率"],["US dollars","美元"],["service charge","手续费"],["today","今天"],["traveler's checks","旅行支票"]],"grammar":"What's the exchange rate for... ...的汇率是多少；service charge 服务费/手续费。","usage":"对应第一课兑换货币的核心问题——了解汇率和费用。"},{"speaker":"兑换员","side":"other","en":"Today's rate is 34.5 baht per dollar, with a 2% service charge.","zh":"今天汇率是1美元兑34.5泰铢，收2%手续费。","words":[["exchange rate","汇率"],["service charge","手续费"]]},{"speaker":"游客","side":"other","en":"Can I use my traveler's checks here? Or is there an ATM nearby where I can withdraw cash?","zh":"这里可以用旅行支票吗？或者附近有ATM机可以取现金？","words":[["traveler's checks","旅行支票"],["ATM","自动取款机"],["withdraw cash","取现金"],["nearby","附近"],["duty-free shop","免税店"]],"grammar":"traveler's checks 旅行支票；withdraw（提取）的过去式 withdrew；ATM = Automatic Teller Machine。","usage":"对应第一课旅行支票和自动取款机取钱内容——多种支付方式。"},{"speaker":"兑换员","side":"other","en":"Yes, we accept traveler's checks. The ATM is just outside, on the left.","zh":"可以，我们受理旅行支票。ATM就在门外左手边。","words":[["traveler's checks","旅行支票"],["ATM","自动取款机"]]}]},{"id":"d030","unit":"第五单元 自由活动日","unit_id":5,"name":"第2课 购物","scene":"自由活动日","turns":[{"speaker":"游客","side":"other","en":"Is this a duty-free shop? Can I get a tax refund on these purchases?","zh":"这是免税店吗？这些东西能退税吗？","words":[["duty-free shop","免税店"],["tax refund","退税"],["purchases","购买的物品"],["get a...on","在...上获得"],["give us a discount","给我们折扣"]],"grammar":"duty-free 免税的（duty=关税/税，非\"职责\"）；tax refund 退税；get...on... 通过...获得...。","usage":"对应《领队英语》第五单元第2课「购物」——帮团员识别免税店和退税资格。"},{"speaker":"店员","side":"other","en":"Yes, it is. Purchases over 5,000 yen qualify for a tax refund.","zh":"是的。购物满5000日元可以退税。","words":[["qualify for","符合...资格"]]},{"speaker":"领队","side":"leader","en":"Could you give us a discount if we buy more? We are a group of 20 people.","zh":"多买能给折扣吗？我们是20人的团。","words":[["give us a discount","给我们折扣"],["buy more","多买"],["a group of","一群/一个团"],["if we buy more","如果我们多买"],["return this item","退还商品"]],"grammar":"give a discount 给折扣；if + 条件句 + 主句 标准条件句型；buy more 买更多。","usage":"对应第二课协助购物——领队帮团员争取团队折扣。"},{"speaker":"店员","side":"other","en":"For a group of 20, I can offer 10% off everything.","zh":"20人的团，我可以给全场九折。","words":[["10% off","九折"],["discount","折扣"]]},{"speaker":"游客","side":"other","en":"Can I return this item and get a refund? I have the receipt here.","zh":"我能退这个商品并退款吗？收据在这里。","words":[["return this item","退还商品"],["get a refund","退款"],["receipt","收据"],["have...here","...在这里"],["price tag","价格标签"]],"grammar":"return 退还；refund 退款（re回+fund资金）；have the receipt here 拿着收据。","usage":"对应第二课超市退货内容——购物纠纷是自由活动日常见问题。"},{"speaker":"店员","side":"other","en":"No problem. Returns are accepted within seven days with the receipt.","zh":"没问题，七天之内凭收据可以退货。","words":[["return","退货"],["within seven days","七天内"]]},{"speaker":"游客","side":"other","en":"The price tag says 250 yuan. Can I pay by Alipay or WeChat Pay?","zh":"标价是250元。能用支付宝或微信支付吗？","words":[["price tag","价格标签"],["Alipay","支付宝"],["WeChat Pay","微信支付"],["pay by","用...支付"],["see the menu","看菜单"]],"grammar":"price tag 价格标签；pay by + 支付方式 以...方式支付。","usage":"第6版新增——用Alipay等新的线上支付方式结账的内容。"},{"speaker":"店员","side":"other","en":"Both work. Please scan this QR code.","zh":"都可以，请扫这个二维码。","words":[["QR code","二维码"],["scan","扫码"]]}]},{"id":"d031","unit":"第五单元 自由活动日","unit_id":5,"name":"第3课 餐馆就餐","scene":"自由活动日","turns":[{"speaker":"领队","side":"leader","en":"Could we see the menu, please? Do you have an English menu?","zh":"能看一下菜单吗？有英文菜单吗？","words":[["see the menu","看菜单"],["English menu","英文菜单"],["do you have","你有...吗"],["order","点（菜）"]],"grammar":"Could we see... 礼貌请求看...；menu 菜单；an English menu 一份英文菜单。","usage":"对应《领队英语》第五单元第3课「餐馆就餐」，领队帮团员点菜的第一步——拿菜单。"},{"speaker":"服务员","side":"other","en":"Of course. Here is the English menu.","zh":"好的，这是英文菜单。"},{"speaker":"领队","side":"leader","en":"We'd like to order some local specialties. What do you recommend?","zh":"我们想点一些当地特色菜。你推荐什么？","words":[["order","点（菜）"],["local specialties","当地特色菜"],["recommend","推荐"],["what do you","你...什么"],["separate bills","分开的账单"]],"grammar":"We'd like to order 我们想点；local specialties 特色菜（specialty 特产/专长）；recommend 推荐。","usage":"对应第三课点菜环节——让地陪或服务员推荐是聪明做法。"},{"speaker":"服务员","side":"other","en":"The roast duck and the handmade noodles are our most popular dishes.","zh":"烤鸭和手工面是我们最受欢迎的菜。","words":[["roast duck","烤鸭"],["popular dishes","热门菜"]]},{"speaker":"游客","side":"other","en":"Could we have separate bills, please? Each person pays for their own meal.","zh":"能分开结账吗？各付各的。","words":[["separate bills","分开的账单"],["each person","每人"],["pays for their own","各付各的"],["meal","餐"],["cappuccino","卡布奇诺"]],"grammar":"separate bills 分开的账单；each person 每人（单数谓语动词）；pay for 为...付钱。","usage":"对应第三课付账环节——自由活动日团员自行用餐，分开结账很正常。"},{"speaker":"服务员","side":"other","en":"No problem. I'll split the bill by seat number.","zh":"没问题，我按座位号分开结账。","words":[["split the bill","分单"],["by seat number","按座位号"]]},{"speaker":"游客","side":"other","en":"I'd like a cappuccino, please. And can I have the bill when you're ready?","zh":"我要一杯卡布奇诺。方便时能给我账单吗？","words":[["cappuccino","卡布奇诺"],["the bill","账单"],["when you're ready","方便时"],["I'd like","我想要"],["subway line","地铁线路"]],"grammar":"cappuccino 卡布奇诺咖啡；the bill 账单（注意拼写）；when you're ready 你准备好了的时候。","usage":"第6版新增——购买咖啡饮料的场景，现代游客的日常需求。"},{"speaker":"服务员","side":"other","en":"One cappuccino, and I'll bring your bill right away.","zh":"一杯卡布奇诺，账单我马上拿来。"}]},{"id":"d032","unit":"第五单元 自由活动日","unit_id":5,"name":"第4课 交通","scene":"自由活动日","turns":[{"speaker":"游客","side":"other","en":"Which subway line goes to the city center? And where is the nearest station?","zh":"哪条地铁线到市中心？最近的车站在哪里？","words":[["subway line","地铁线路"],["city center","市中心"],["nearest station","最近的车站"],["goes to","通往"],["call...taxis","叫出租车"]],"grammar":"which + 名词 + 谓语 哪条...；goes to 通往（第三人称单数）；subway 地铁（美式，英式用tube/underground）。","usage":"对应《领队英语》第五单元第4课「交通」——自由活动日帮团员问公共交通。"},{"speaker":"领队","side":"leader","en":"Line 2 goes straight to the city center. The nearest station is 200 meters ahead, on the left.","zh":"2号线直达市中心，最近的车站在前面200米左手边。","words":[["goes straight to","直达"],["ahead","在前面"]]},{"speaker":"领队","side":"leader","en":"Could you call two taxis for us? We're eight people in total.","zh":"能帮我们叫两辆出租车吗？我们一共八个人。","words":[["call...taxis","叫出租车"],["eight people","八个人"],["in total","总共"],["bus fare","公交车费"]],"grammar":"call a taxi 叫出租车；in total 总共；Could you + 动词原形 礼貌请求。","usage":"对应第四课乘坐出租车——人数多时要分车，提前算好。"},{"speaker":"酒店员工","side":"other","en":"Two taxis, no problem. They'll arrive in about five minutes.","zh":"两辆出租车，没问题，大约五分钟到。"},{"speaker":"游客","side":"other","en":"How much is the bus fare to the downtown area? Do I need exact change?","zh":"去市区的公交车票多少钱？需要准备正好的零钱吗？","words":[["bus fare","公交车费"],["downtown area","市中心区"],["exact change","正好的零钱"],["need","需要"],["last bus","末班车"]],"grammar":"fare 公共交通票价（区别于 fee/price）；downtown 市中心（美式）；exact change 不需要找零的金额。","usage":"对应第四课乘坐公共巴士——不同城市公交规则不同，提前问清楚。"},{"speaker":"领队","side":"leader","en":"Two yuan per person. Buses don't give change, so prepare coins.","zh":"每人2元。公交不找零，准备好硬币。","words":[["give change","找零"],["coins","硬币"]]},{"speaker":"游客","side":"other","en":"What time is the last bus back to our hotel? We don't want to miss it.","zh":"回酒店的末班车是几点？我们不想错过。","words":[["last bus","末班车"],["back to our hotel","回酒店"],["don't want to miss","不想错过"],["what time","几点"],["airmail letter","航空信件"]],"grammar":"last bus 末班车；back to... 回到...；miss 错过（=没赶上）。","usage":"安全提醒——确认末班车时间，防止团员夜归无车。"},{"speaker":"领队","side":"leader","en":"The last bus is at 10:30 PM. Let's meet at the bus stop at 10:15.","zh":"末班车晚上10点半。我们10点15分在车站集合。","words":[["bus stop","公交车站"]]}]},{"id":"d033","unit":"第五单元 自由活动日","unit_id":5,"name":"第5课 邮寄","scene":"自由活动日","turns":[{"speaker":"游客","side":"other","en":"Excuse me, can you tell me how long it takes for an airmail letter to get to China?","zh":"请问一封航空信到中国需要多长时间？","words":[["airmail letter","航空信件"],["how long","多久"],["get to China","到达中国"],["it takes","需要"],["mail this small package","寄这个包裹"]],"grammar":"how long it takes for...to... ...需要多长时间（间接疑问句用陈述语序）；airmail 航空邮件。","usage":"对应《领队英语》第五单元第5课「邮寄」——询问邮寄时间。"},{"speaker":"邮局职员","side":"other","en":"About one week by airmail, sometimes ten days.","zh":"航空件大约一周，有时十天。","words":[["by airmail","航空邮寄"]]},{"speaker":"游客","side":"other","en":"I want to mail this small package to Beijing. How much is the postage?","zh":"我想把这个小包裹寄到北京，邮费多少？","words":[["mail this small package","寄这个包裹"],["postage","邮费"],["how much","多少钱"],["Beijing","北京"],["by airmail","航空邮寄"]],"grammar":"mail 邮寄（动词/名词均可）；postage 邮资/邮费；small package 小包裹。","usage":"对应第五课邮寄包裹——境外寄明信片和包裹给国内亲友。"},{"speaker":"邮局职员","side":"other","en":"Let me weigh it... That will be 12 dollars.","zh":"我称一下……邮费12美元。","words":[["weigh","称重"],["postage","邮费"]]},{"speaker":"邮局职员","side":"other","en":"Do you want to send it by airmail or by ordinary mail? Air is faster but more expensive.","zh":"您想寄航空还是平邮？航空快但是贵。","words":[["by airmail","航空邮寄"],["ordinary mail","平邮/普通邮"],["faster","更快"],["more expensive","更贵"],["5-cent stamps","五分邮票"]],"grammar":"by + 方式 以...方式；ordinary mail 平邮；比较级 faster/more expensive。","usage":"对应第五课邮寄方式选择——帮助理解航空和平邮的利弊。"},{"speaker":"游客","side":"other","en":"By airmail, please.","zh":"寄航空吧。"},{"speaker":"游客","side":"other","en":"May I have ten 5-cent stamps, two 10-cent stamps and six airmail envelopes, please?","zh":"请给我十张五分邮票、两张十分邮票和六个航空信封。","words":[["5-cent stamps","五分邮票"],["10-cent stamps","十分邮票"],["airmail envelopes","航空信封"],["May I have","请给我"]],"grammar":"May I have... 礼貌请求购买；cent 美分；stamp 邮票；envelope 信封。","usage":"对应第五课购买邮票和信封——自由活动日帮团员采购邮寄用品。"},{"speaker":"邮局职员","side":"other","en":"Here you are. That's 3 dollars in total.","zh":"给您，一共3美元。","words":[["in total","总共"]]}]}];
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function yesterday(){const d=new Date(Date.now()-864e5);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+const DAY_MS=864e5;
+function $(id){return document.getElementById(id)}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000)}
+const LS_KEY='wb_tourleader_english_v3';
+function defaultState(){return{dialogueProgress:{},dailyLog:{},checkins:[],totalDays:0,wordBook:[]}}
+let state;
+function loadState(){
+  const raw=localStorage.getItem(LS_KEY);
+  if(raw){try{state=JSON.parse(raw);if(!state.wordBook)state.wordBook=[]}catch(e){state=defaultState()}}
+  else{
+    state=defaultState();
+    const yd=yesterday();
+    state.dailyLog[yd]={newUnit:'d001',reviewUnit:null,done:false};
+  }
+  saveState();
+}
+function saveState(){localStorage.setItem(LS_KEY,JSON.stringify(state))}
+function getTodayAssignment(){
+  const td=today();
+  if(state.dailyLog[td]) return state.dailyLog[td];
+  const learned=new Set(Object.keys(state.dialogueProgress).filter(k=>state.dialogueProgress[k].learned));
+  let newUnit=null;
+  for(let u of DIALOGUE_UNITS){if(!learned.has(u.id)){newUnit=u.id;break}}
+  let reviewUnit=null;
+  if(learned.size>0){
+    const learnedList=Array.from(learned).map(id=>({id,lastReview:state.dialogueProgress[id].lastReview||'1970-01-01'})).sort((a,b)=>a.lastReview.localeCompare(b.lastReview));
+    for(let l of learnedList){if(l.id!==newUnit){reviewUnit=l.id;break}}
+  }
+  state.dailyLog[td]={newUnit,reviewUnit,done:false};
+  saveState();
+  return state.dailyLog[td];
+}
+function findUnitById(id){return DIALOGUE_UNITS.find(u=>u.id===id)}
+function renderTodayAlert(){
+  const yd=yesterday();
+  const ydLog=state.dailyLog[yd];
+  let html='';
+  if(ydLog && !ydLog.done && ydLog.newUnit){
+    const u=findUnitById(ydLog.newUnit);
+    if(u && !(state.dialogueProgress[ydLog.newUnit] && state.dialogueProgress[ydLog.newUnit].learned)){
+      html+='<div class="today-banner overdue"><div class="today-label">昨天未打卡 — 已自动顺延到今天</div>'
+        +'<div style="font-size:14px;font-weight:600">'+u.name+' <span style="font-size:12px;color:var(--mute)">'+u.unit+'</span></div></div>';
+    }
+  }
+  $('todayAlert').innerHTML=html;
+}
+function renderToday(){
+  const asgn=getTodayAssignment();
+  const newUnit=asgn.newUnit?findUnitById(asgn.newUnit):null;
+  const revUnit=asgn.reviewUnit?findUnitById(asgn.reviewUnit):null;
+  const done=asgn.done;
+  let html='';
+  if(newUnit){
+    html+='<div class="card"><div class="card-title">'
+      +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'
+      +'今天的新课 '+(done?'<span class="badge badge-green">已完成</span>':'<span class="badge badge-orange pulse">待打卡</span>')
+      +'</div>'+renderDialogue(newUnit,'new')+'</div>';
+  }else{
+    html+='<div class="card"><div class="card-title">'
+      +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+      +'全部学完！</div><div class="empty">33段对话全部完成，太棒了！继续复习巩固吧。</div></div>';
+  }
+  if(revUnit){
+    html+='<div class="card"><div class="card-title">'
+      +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>'
+      +'今日复习</div>'+renderDialogue(revUnit,'review')+'</div>';
+  }
+  html+='<div class="card" style="text-align:center">'
+    +'<div style="font-size:13px;color:var(--mute);margin-bottom:10px">'+(done?'今天已打卡，明天继续加油！':'学完新课和复习后，点击打卡')+'</div>'
+    +'<button class="btn btn-teal" onclick="doCheckin()" '+(done?'disabled':'')+' style="font-size:16px;padding:14px 48px">'
+    +'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+    +(done?'已完成打卡 ✓':'打卡完成今天的学习')+'</button></div>';
+  $('todayContent').innerHTML=html;
+}
+function renderDialogue(unit,type){
+  const progress=state.dialogueProgress[unit.id];
+  const learned=progress && progress.learned;
+  const reviewCount=progress?progress.reviewCount||0:0;
+  let html='<div class="dialogue-header"><div><div class="dialogue-unit">'+unit.unit+'</div>'
+    +'<div class="dialogue-title">'+unit.name+'</div></div><div class="row">'
+    +(learned?'<span class="badge badge-green">已掌握</span>':'')
+    +(type==='review'?'<span class="badge badge-orange">复习 '+(reviewCount+1)+'次</span>':'')
+    +'</div></div>';
+  html+='<button class="btn btn-outline btn-sm play-all" onclick="playAll(\''+unit.id+'\')">'
+    +'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
+    +'连续播放整段对话（'+unit.turns.length+'轮）</button>';
+  for(let i=0;i<unit.turns.length;i++){
+    const t=unit.turns[i];
+    const isLeader=t.side==='leader';
+    html+='<div class="turn'+(isLeader?' leader':'')+'">'
+      +'<div class="turn-speaker"><span class="speaker-dot"></span>'+t.speaker+(isLeader?'（你）':'')+'</div>'
+      +'<div class="turn-en">'+t.en+'</div>'
+      +'<div class="turn-zh">'+t.zh+'</div>'
+      +'<div class="turn-actions">'
+      +'<button class="speak-btn" onclick="speakTurn(\''+unit.id+'\','+i+',false)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>发音</button>'
+      +'<button class="speak-btn slow" onclick="speakTurn(\''+unit.id+'\','+i+',true)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>慢速</button>';
+    if(t.words||t.grammar||t.usage){
+      html+='<button class="expand-btn" onclick="toggleDetail(\''+unit.id+'-'+i+'\')">讲解 ▾</button>';
+    }
+    html+='</div>';
+    if(t.words||t.grammar||t.usage){
+      html+='<div class="detail-panel" id="detail-'+unit.id+'-'+i+'">';
+      if(t.words){
+        html+='<table class="word-table">';
+        for(let w of t.words){
+          const wkey=encodeURIComponent(w[0]);
+          const saved=state.wordBook.some(x=>x.word===w[0]);
+          html+='<tr><td>'+w[0]+'<button class="word-speak" data-w="'+wkey+'" onclick="speakWord(this)" title="单词发音"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button><button class="word-bookmark'+(saved?' active':'')+'" data-w="'+wkey+'" data-z="'+encodeURIComponent(w[1])+'" data-u="'+encodeURIComponent(unit.name)+'" onclick="toggleWordBookmark(this)" title="加入生词本"><svg width="13" height="13" viewBox="0 0 24 24" fill="'+(saved?'currentColor':'none')+'" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button></td><td>'+w[1]+'</td></tr>';
+        }
+        html+='</table>';
+      }
+      if(t.grammar) html+='<div class="grammar-box"><strong>语法重点：</strong>'+t.grammar+'</div>';
+      if(t.usage) html+='<div class="usage-box"><strong>使用场景：</strong>'+t.usage+'</div>';
+      html+='</div>';
+    }
+    html+='</div>';
+  }
+  return html;
+}
+function renderCourses(){
+  const unitMap={};
+  for(let u of DIALOGUE_UNITS){if(!unitMap[u.unit])unitMap[u.unit]=[];unitMap[u.unit].push(u)}
+  let html='',idx=0;
+  for(let unitName in unitMap){
+    html+='<div class="course-unit"><div class="course-unit-header">'+unitName+'</div>';
+    for(let l of unitMap[unitName]){
+      idx++;
+      const learned=state.dialogueProgress[l.id]&&state.dialogueProgress[l.id].learned;
+      html+='<div class="course-item'+(learned?' learned':'')+'" onclick="previewDialogue(\''+l.id+'\')">'
+        +'<div class="num">'+idx+'</div><div class="info"><div class="name">'+l.name+'</div>'
+        +'<div class="stat">'+l.turns.length+'轮对话'+(learned?' · ✓ 已学':'')+'</div></div>'
+        +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>';
+    }
+    html+='</div>';
+  }
+  $('coursesContent').innerHTML=html;
+}
+function renderProgress(){
+  const learnedCount=Object.keys(state.dialogueProgress).filter(k=>state.dialogueProgress[k].learned).length;
+  const streak=calcStreak();
+  let html='<div class="card"><div class="card-title">'
+    +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>'
+    +'学习统计</div><div class="streak-box">'
+    +'<div class="streak-stat"><div class="num">'+streak+'</div><div class="label">连续打卡天数</div></div>'
+    +'<div class="streak-stat"><div class="num">'+learnedCount+'/'+DIALOGUE_UNITS.length+'</div><div class="label">已学对话</div></div>'
+    +'<div class="streak-stat"><div class="num">'+state.checkins.length+'</div><div class="label">累计打卡</div></div>'
+    +'</div></div>';
+  html+='<div class="card"><div class="card-title">最近30天打卡热力图</div><div class="heatmap">';
+  for(let i=29;i>=0;i--){
+    const d=new Date(Date.now()-i*DAY_MS);
+    const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const log=state.dailyLog[ds];
+    let cls='';if(log&&log.done)cls='done';else if(log&&!log.done)cls='miss';
+    html+='<div class="heatmap-cell '+cls+'" title="'+ds+'"></div>';
+  }
+  html+='</div></div>';
+  const queue=getReviewQueue();
+  if(queue.length>0){
+    html+='<div class="card"><div class="card-title">'
+      +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>'
+      +'复习队列（'+queue.length+'段待复习）</div>';
+    for(let r of queue.slice(0,10)){
+      html+='<div class="review-item"><div><span class="name">'+r.name+'</span>'
+        +'<span style="font-size:11px;color:var(--mute);margin-left:8px">上次复习: '+(r.lastReview||'未复习')+' · '+r.count+'次</span></div>'
+        +'<span class="badge badge-orange">待复习</span></div>';
+    }
+    html+='</div>';
+  }
+  $('progressContent').innerHTML=html;
+}
+function calcStreak(){
+  let s=0;
+  for(let i=0;i<365;i++){
+    const d=new Date(Date.now()-i*DAY_MS);
+    const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    if(state.dailyLog[ds]&&state.dailyLog[ds].done)s++;else break;
+  }
+  return s;
+}
+function getReviewQueue(){
+  const learned=Object.keys(state.dialogueProgress).filter(k=>state.dialogueProgress[k].learned);
+  return learned.map(id=>({id,name:(findUnitById(id)||{name:id}).name,count:state.dialogueProgress[id].reviewCount||0,lastReview:state.dialogueProgress[id].lastReview||null}))
+    .sort((a,b)=>(a.lastReview||'1970-01-01').localeCompare(b.lastReview||'1970-01-01'));
+}
+function doCheckin(){
+  const asgn=getTodayAssignment();
+  if(asgn.done){toast('今天已经打卡过了');return}
+  if(asgn.newUnit){
+    if(!state.dialogueProgress[asgn.newUnit])state.dialogueProgress[asgn.newUnit]={learned:false,date:null,reviewCount:0,lastReview:null};
+    state.dialogueProgress[asgn.newUnit].learned=true;
+    state.dialogueProgress[asgn.newUnit].date=today();
+  }
+  if(asgn.reviewUnit){
+    if(!state.dialogueProgress[asgn.reviewUnit])state.dialogueProgress[asgn.reviewUnit]={learned:true,date:null,reviewCount:0,lastReview:null};
+    state.dialogueProgress[asgn.reviewUnit].reviewCount=(state.dialogueProgress[asgn.reviewUnit].reviewCount||0)+1;
+    state.dialogueProgress[asgn.reviewUnit].lastReview=today();
+  }
+  asgn.done=true;
+  state.dailyLog[today()]=asgn;
+  if(!state.checkins.includes(today()))state.checkins.push(today());
+  state.totalDays=(state.totalDays||0)+1;
+  saveState();
+  refreshAll();
+  toast('打卡成功！明天继续加油');
+  if(state.checkins.length>=30)$('dataHint').style.display='inline';
+}
+function previewDialogue(unitId){
+  const unit=findUnitById(unitId);
+  if(!unit)return;
+  $('coursesContent').innerHTML='<div style="margin-bottom:12px"><button class="btn btn-ghost btn-sm" onclick="renderCourses()">← 返回课程列表</button></div>'
+    +'<div class="card">'+renderDialogue(unit,'preview')+'</div>';
+}
+let playQueue=[],playIdx=0;
+function playAll(unitId){
+  const unit=findUnitById(unitId);
+  if(!unit||!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  playQueue=unit.turns.map(t=>t.en);
+  playIdx=0;
+  speakNext();
+}
+function speakNext(){
+  if(playIdx>=playQueue.length)return;
+  const u=new SpeechSynthesisUtterance(playQueue[playIdx]);
+  u.lang='en-US';u.rate=0.9;
+  u.onend=function(){playIdx++;setTimeout(speakNext,600)};
+  window.speechSynthesis.speak(u);
+}
+function speakTurn(unitId,idx,slow){
+  const unit=findUnitById(unitId);
+  if(!unit||!unit.turns[idx])return;
+  if(!window.speechSynthesis){toast('浏览器不支持发音');return}
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(unit.turns[idx].en);
+  u.lang='en-US';u.rate=slow?0.65:0.9;
+  window.speechSynthesis.speak(u);
+}
+function speakWord(btn){
+  const word=decodeURIComponent(btn.dataset.w);
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(word);
+  u.lang='en-US';u.rate=0.7;
+  window.speechSynthesis.speak(u);
+}
+function toggleWordBookmark(btn){
+  const word=decodeURIComponent(btn.dataset.w);
+  const zh=decodeURIComponent(btn.dataset.z);
+  const src=decodeURIComponent(btn.dataset.u||'');
+  const idx=state.wordBook.findIndex(x=>x.word===word);
+  if(idx>=0){
+    state.wordBook.splice(idx,1);
+    btn.classList.remove('active');
+    btn.querySelector('svg').setAttribute('fill','none');
+    toast('已移出生词本');
+  }else{
+    state.wordBook.push({word,zh,src,added:today()});
+    btn.classList.add('active');
+    btn.querySelector('svg').setAttribute('fill','currentColor');
+    toast('已加入生词本');
+  }
+  saveState();
+}
+function renderWordBook(){
+  if(wbReviewMode){renderWordReview();return}
+  const wb=state.wordBook;
+  let html='<div class="card"><div class="card-title">'
+    +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>'
+    +'生词本 <span class="badge badge-orange">'+wb.length+'</span></div>';
+  if(wb.length===0){
+    html+='<div class="empty">还没有收藏的单词<br><span style="font-size:12px">在对话讲解区点击星标按钮即可收藏</span></div>';
+  }else{
+    html+='<div class="row" style="margin-bottom:12px">'
+      +'<button class="btn btn-teal btn-sm" onclick="startWordReview()">开始复习</button>'
+      +'<button class="btn btn-ghost btn-sm" onclick="speakAllWords()">全部播放</button>'
+      +'<button class="btn btn-ghost btn-sm" onclick="clearWordBook()">清空</button></div>';
+    for(let w of wb){
+      html+='<div class="wb-item">'
+        +'<button class="word-speak" data-w="'+encodeURIComponent(w.word)+'" onclick="speakWord(this)" style="min-width:36px"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>'
+        +'<div class="wb-word">'+w.word+'</div>'
+        +'<div class="wb-zh">'+w.zh+'</div>'
+        +'<div class="wb-src">'+(w.src||'')+'</div>'
+        +'<button class="word-bookmark active" onclick="removeWord(''+w.word.replace(/'/g,"\'")+'')" style="color:var(--red)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+        +'</div>';
+    }
+  }
+  html+='</div>';
+  $('wordbookContent').innerHTML=html;
+}
+function removeWord(word){
+  state.wordBook=state.wordBook.filter(x=>x.word!==word);
+  saveState();renderWordBook();toast('已移除');
+}
+function clearWordBook(){
+  if(state.wordBook.length===0)return;
+  state.wordBook=[];saveState();renderWordBook();toast('生词本已清空');
+}
+function speakAllWords(){
+  if(!window.speechSynthesis||state.wordBook.length===0)return;
+  window.speechSynthesis.cancel();
+  let idx=0;
+  const words=state.wordBook.map(x=>x.word);
+  function next(){
+    if(idx>=words.length)return;
+    const u=new SpeechSynthesisUtterance(words[idx]);
+    u.lang='en-US';u.rate=0.7;
+    u.onend=function(){idx++;setTimeout(next,800)};
+    window.speechSynthesis.speak(u);
+  }
+  next();
+}
+let wbReviewMode=false,wbReviewIdx=0,wbReviewQueue=[],wbReviewScore=0;
+function startWordReview(){
+  if(state.wordBook.length<4){toast('至少需要4个单词才能开始复习');return}
+  wbReviewMode=true;wbReviewIdx=0;wbReviewScore=0;
+  wbReviewQueue=[...state.wordBook].sort(()=>Math.random()-0.5);
+  renderWordReview();
+}
+function renderWordReview(){
+  if(!wbReviewMode)return;
+  if(wbReviewIdx>=wbReviewQueue.length){
+    const total=wbReviewQueue.length;
+    const pct=Math.round(wbReviewScore/total*100);
+    let msg=pct>=80?'太棒了！':pct>=60?'不错，继续加油':'还需要多复习';
+    $('wordbookContent').innerHTML='<div class="card wb-review-card">'
+      +'<div style="font-size:48px;margin-bottom:12px">'+(pct>=80?'🎉':pct>=60?'👍':'💪')+'</div>'
+      +'<div style="font-size:20px;font-weight:700;margin-bottom:8px">'+msg+'</div>'
+      +'<div style="font-size:15px;color:var(--mute);margin-bottom:20px">答对 '+wbReviewScore+'/'+total+'（'+pct+'%）</div>'
+      +'<button class="btn btn-teal" onclick="exitWordReview()">返回生词本</button></div>';
+    return;
+  }
+  const cur=wbReviewQueue[wbReviewIdx];
+  const opts=[...state.wordBook].sort(()=>Math.random()-0.5).slice(0,4);
+  if(!opts.find(x=>x.word===cur.word))opts[0]=cur;
+  opts.sort(()=>Math.random()-0.5);
+  let html='<div class="card wb-review-card">'
+    +'<div style="font-size:12px;color:var(--mute);margin-bottom:16px">第 '+(wbReviewIdx+1)+'/'+wbReviewQueue.length+' 题 · 当前得分 '+wbReviewScore+'</div>'
+    +'<button class="btn btn-outline" style="margin-bottom:16px;font-size:18px;padding:14px 24px" onclick="speakReviewWord()">'
+    +'<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
+    +'点击听单词</button>'
+    +'<div class="wb-options">';
+  for(let o of opts){
+    html+='<button class="wb-opt" onclick="answerReview(''+o.word.replace(/'/g,"\'")+'')">'+o.zh+'</button>';
+  }
+  html+='</div></div>';
+  $('wordbookContent').innerHTML=html;
+  setTimeout(speakReviewWord,300);
+}
+function speakReviewWord(){
+  if(!wbReviewMode||wbReviewIdx>=wbReviewQueue.length)return;
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(wbReviewQueue[wbReviewIdx].word);
+  u.lang='en-US';u.rate=0.7;
+  window.speechSynthesis.speak(u);
+}
+function answerReview(word){
+  const cur=wbReviewQueue[wbReviewIdx];
+  const btns=document.querySelectorAll('.wb-opt');
+  const correct=word===cur.word;
+  if(correct)wbReviewScore++;
+  const wrongZh=state.wordBook.find(x=>x.word===word)?.zh;
+  btns.forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===cur.zh)b.classList.add('correct');
+    else if(wrongZh&&b.textContent===wrongZh)b.classList.add('wrong');
+  });
+  if(!correct)toast('正确答案：'+cur.zh);
+  setTimeout(()=>{wbReviewIdx++;renderWordReview()},1200);
+}
+  setTimeout(()=>{wbReviewIdx++;renderWordReview()},1200);
+}
+function exitWordReview(){
+  wbReviewMode=false;renderWordBook();
+}
+function toggleDetail(key){
+  const el=$('detail-'+key);
+  const btn=el.previousElementSibling.querySelector('.expand-btn')||el.previousElementSibling;
+  if(el.classList.contains('show')){el.classList.remove('show');if(btn.tagName==='BUTTON')btn.textContent='讲解 ▾'}
+  else{el.classList.add('show');if(btn.tagName==='BUTTON')btn.textContent='收起 ▴'}
+}
+let currentTab='today';
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.mobile-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  const dt=document.querySelectorAll('#tabNav .tab-btn');
+  const mt=document.querySelectorAll('#mobileTabs .mobile-tab');
+  const i=tab==='today'?0:tab==='courses'?1:tab==='wordbook'?2:3;
+  dt[i].classList.add('active');mt[i].classList.add('active');
+  $('panel-'+tab).classList.add('active');
+  if(tab==='today')renderToday();else if(tab==='courses')renderCourses();else if(tab==='wordbook')renderWordBook();else renderProgress();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='领队英语学习台_备份_'+today()+'.json';a.click();
+  URL.revokeObjectURL(url);
+  toast('备份已下载 ✓');
+}
+function importData(){$('fileInput').click()}
+function handleFileImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(data.dialogueProgress!==undefined&&data.dailyLog!==undefined){
+        state=data;saveState();refreshAll();toast('数据恢复成功 ✓');
+      }else toast('文件格式不正确');
+    }catch(ex){toast('文件解析失败')}
+  };
+  reader.readAsText(file);e.target.value='';
+}
+function clearData(){$('clearModal').classList.add('show')}
+function closeClearModal(){$('clearModal').classList.remove('show')}
+function doClear(){
+  state=defaultState();saveState();closeClearModal();refreshAll();toast('数据已清空');
+}
+function refreshAll(){
+  renderTodayAlert();
+  if(currentTab==='today')renderToday();else if(currentTab==='courses')renderCourses();else if(currentTab==='wordbook')renderWordBook();else renderProgress();
+  if(state.checkins&&state.checkins.length>=30){
+    $('dataHint').textContent='数据已积累'+state.checkins.length+'天，建议导出备份';
+    $('dataHint').style.display='inline';
+  }
+}
+loadState();
+getTodayAssignment();
+renderTodayAlert();
+renderToday();
+renderCourses();
+renderWordBook();
+renderProgress();
+</script>
+</body>
+</html>
