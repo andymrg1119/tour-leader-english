@@ -607,7 +607,12 @@ function flipCard(){
 }
 function markCard(ok){
   const c=ensureCards();
-  const w=WORDS[c.idx];
+  let i=c.idx;
+  if(i<0)i=0;
+  if(i>=c.ids.length)i=c.ids.length-1;
+  c.idx=i;
+  const w=WORDS[c.ids[i]];
+  if(!w)return;
   const pos=c.known.indexOf(w.word);
   if(ok&&pos<0)c.known.push(w.word);
   if(!ok&&pos>=0)c.known.splice(pos,1);
