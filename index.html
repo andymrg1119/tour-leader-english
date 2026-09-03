@@ -54,6 +54,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .word-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
 .word-table td{padding:4px 8px;border-bottom:1px solid var(--border)}
 .word-table td:first-child{font-weight:600;color:var(--teal);white-space:nowrap}
+.turn-words{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}
+.wchip{display:inline-flex;align-items:center;gap:3px;background:var(--teal-l);border:1px solid var(--border);border-radius:14px;padding:2px 5px 2px 4px;font-size:12px;line-height:1.4}
+.wpron{background:none;border:none;cursor:pointer;font-family:var(--font);color:#0f766e;font-size:12px;display:inline-flex;align-items:center;gap:3px;padding:3px 4px;border-radius:10px;font-weight:600;min-height:28px}
+.wpron:hover{background:#d6ecec}
+.wpron svg{color:var(--teal);flex-shrink:0}
+.wzh{color:var(--mute);font-size:11px}
+.wstar{background:none;border:none;cursor:pointer;color:#cbd5e1;font-size:14px;line-height:1;padding:2px 5px;border-radius:8px;min-width:26px;min-height:26px}
+.wstar.active{color:#f59e0b}
 .word-speak{background:none;border:none;cursor:pointer;color:var(--teal);padding:2px 4px;margin-left:4px;vertical-align:middle;display:inline-flex;align-items:center;min-height:28px;min-width:28px;justify-content:center;border-radius:4px}
 .word-speak:hover{background:var(--teal-l)}
 .word-bookmark{background:none;border:none;cursor:pointer;color:#cbd5e1;padding:2px 4px;vertical-align:middle;display:inline-flex;align-items:center;min-height:28px;min-width:28px;justify-content:center;border-radius:4px}
@@ -305,7 +313,23 @@ function renderDialogue(unit,type){
     html+='<div class="turn'+(isLeader?' leader':'')+'">'
       +'<div class="turn-speaker"><span class="speaker-dot"></span>'+t.speaker+(isLeader?'（你）':'')+'</div>'
       +'<div class="turn-en">'+t.en+'</div>'
-      +'<div class="turn-zh">'+t.zh+'</div>'
+      +'<div class="turn-zh">'+t.zh+'</div>';
+    if(t.words && t.words.length){
+      html+='<div class="turn-words">';
+      for(let w of t.words){
+        const wkey=encodeURIComponent(w[0]);
+        const saved=state.wordBook.some(x=>x.word===w[0]);
+        html+='<span class="wchip">'
+          +'<button class="wpron" data-w="'+wkey+'" onclick="speakWord(this)" title="点读发音（美式）">'
+          +'<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>'
+          +'<span>'+w[0]+'</span></button>'
+          +'<span class="wzh">'+w[1]+'</span>'
+          +'<button class="wstar'+(saved?' active':'')+'" data-w="'+wkey+'" data-z="'+encodeURIComponent(w[1])+'" data-u="'+encodeURIComponent(unit.name)+'" onclick="toggleWordBookmark(this)" title="加入生词本">★</button>'
+          +'</span>';
+      }
+      html+='</div>';
+    }
+    html+=
       +'<div class="turn-actions">'
       +'<button class="speak-btn" onclick="speakTurn(\''+unit.id+'\','+i+',false)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>发音</button>'
       +'<button class="speak-btn slow" onclick="speakTurn(\''+unit.id+'\','+i+',true)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>慢速</button>';
@@ -315,15 +339,6 @@ function renderDialogue(unit,type){
     html+='</div>';
     if(t.words||t.grammar||t.usage){
       html+='<div class="detail-panel" id="detail-'+unit.id+'-'+i+'">';
-      if(t.words){
-        html+='<table class="word-table">';
-        for(let w of t.words){
-          const wkey=encodeURIComponent(w[0]);
-          const saved=state.wordBook.some(x=>x.word===w[0]);
-          html+='<tr><td>'+w[0]+'<button class="word-speak" data-w="'+wkey+'" onclick="speakWord(this)" title="单词发音"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button><button class="word-bookmark'+(saved?' active':'')+'" data-w="'+wkey+'" data-z="'+encodeURIComponent(w[1])+'" data-u="'+encodeURIComponent(unit.name)+'" onclick="toggleWordBookmark(this)" title="加入生词本"><svg width="13" height="13" viewBox="0 0 24 24" fill="'+(saved?'currentColor':'none')+'" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button></td><td>'+w[1]+'</td></tr>';
-        }
-        html+='</table>';
-      }
       if(t.grammar) html+='<div class="grammar-box"><strong>语法重点：</strong>'+t.grammar+'</div>';
       if(t.usage) html+='<div class="usage-box"><strong>使用场景：</strong>'+t.usage+'</div>';
       html+='</div>';
