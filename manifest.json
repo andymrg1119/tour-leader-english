@@ -1,0 +1,35 @@
+{
+  "name": "领队英语学习台",
+  "short_name": "领队英语",
+  "description": "基于《领队英语》第6版的自学平台：33课完整对话、540个单词，每日学习+复习计划、单词卡与听写练习，支持离线使用。",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0ea5a4",
+  "theme_color": "#0ea5a4",
+  "categories": ["education"],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

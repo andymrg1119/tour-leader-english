@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
 <title>领队英语学习台</title>
+<!-- PWA：全部使用相对路径，适配 GitHub Pages 子路径 /tour-leader-english/ -->
+<meta name="description" content="基于《领队英语》第6版的自学平台：33课完整对话、540个单词，每日学习+复习计划、单词卡与听写练习，支持离线使用。">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0ea5a4">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="领队英语">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
 :root{--bg:#f5f7fa;--card:#fff;--text:#1a1a2e;--mute:#8892a4;--teal:#0ea5a4;--teal-l:#e6f7f7;--red:#e74c3c;--red-l:#fdeaea;--orange:#f39c12;--orange-l:#fef5e7;--green:#27ae60;--green-l:#eafaf1;--border:#e8ecf1;--shadow:0 2px 8px rgba(0,0,0,.06);--radius:12px;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -997,6 +1007,22 @@ renderWordList();
 renderWordCards();
 renderWordBook();
 renderProgress();
+/* ---- PWA: 注册 Service Worker（特性检测，file:// 等不支持环境静默跳过） ---- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(function(reg){
+      reg.addEventListener('updatefound',function(){
+        var nw=reg.installing;
+        if(!nw)return;
+        nw.addEventListener('statechange',function(){
+          if(nw.state==='installed'&&navigator.serviceWorker.controller){
+            toast('已更新到最新版本，刷新页面即可生效');
+          }
+        });
+      });
+    }).catch(function(err){console.warn('[SW] register failed:',err)});
+  });
+}
 </script>
 </body>
 </html>
