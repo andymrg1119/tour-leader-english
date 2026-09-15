@@ -4,7 +4,7 @@
   "description": "基于《领队英语》第6版的自学平台：33课完整对话、540个单词，每日学习+复习计划、单词卡与听写练习，支持离线使用。",
   "lang": "zh-CN",
   "dir": "ltr",
-  "id": "./",
+  "id": "/tour-leader-english/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

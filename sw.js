@@ -17,7 +17,7 @@
  *（例如 tour-leader-v1 -> tour-leader-v2），旧缓存会被自动清空。
  * ========================================================================= */
 
-const CACHE_NAME = 'tour-leader-v1';
+const CACHE_NAME = 'tour-leader-v2';
 
 /* 预缓存清单：应用外壳 + 静态资源（全部为相对路径，适配 /tour-leader-english/ 子路径） */
 const PRECACHE = [
@@ -92,7 +92,10 @@ self.addEventListener('fetch', (event) => {
 async function networkFirst(req) {
   const cache = await caches.open(CACHE_NAME);
   try {
-    const fresh = await fetch(req);
+    // 必须绕过浏览器 HTTP 缓存：GitHub Pages 对 HTML 返回 Cache-Control: max-age=600，
+    // 若沿用 req 默认的 cache:'default'，新鲜期内会直接复用 HTTP 缓存里的旧页面、
+    // 根本不发网络请求，network-first 就形同虚设（QA 已 curl 实测确认）。
+    const fresh = await fetch(new Request(req.url, { cache: 'reload', credentials: 'same-origin' }));
     if (fresh && fresh.ok) {
       // 用 URL 字符串作为缓存键，避免 navigate 模式 Request 的存储限制
       cache.put(req.url, fresh.clone()).catch(() => {});

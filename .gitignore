@@ -1,0 +1,9 @@
+# 本地 JS 语法校验临时文件，不要发布到 GitHub Pages
+#（deploy.yml 用 upload-pages-artifact path: . ，git add . 会把它们一起发上线）
+_test*.js
+
+# 其他本地临时产物
+__pycache__/
+*.pyc
+*.log
+.DS_Store
