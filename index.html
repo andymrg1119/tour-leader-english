@@ -219,10 +219,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       清空
     </button>
-    <button class="btn btn-ghost btn-sm" onclick="openVoiceModal()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      发音
-    </button>
     <span id="dataHint" style="font-size:11px;color:var(--orange);display:none;align-self:center"></span>
   </div>
   <div id="todayAlert"></div>
@@ -275,17 +271,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="row">
       <button class="btn btn-ghost" onclick="closeClearModal()">取消</button>
       <button class="btn btn-red" onclick="doClear()">确认清空</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="voiceModal">
-  <div class="modal">
-    <h3>选择美式发音</h3>
-    <p>下面是你设备上所有美式嗓音，点「试听」对比后挑一个最自然的。神经网络（Natural）嗓音明显更自然，优先选带这个标记的。</p>
-    <div id="voiceList"></div>
-    <div class="row">
-      <button class="btn btn-ghost" onclick="closeVoiceModal()">关闭</button>
-      <button class="btn btn-primary" onclick="useAutoVoice()">自动选最佳</button>
     </div>
   </div>
 </div>
@@ -517,12 +502,38 @@ function previewDialogue(unitId){
   $('coursesContent').innerHTML='<div style="margin-bottom:12px"><button class="btn btn-ghost btn-sm" onclick="renderCourses()">← 返回课程列表</button></div>'
     +'<div class="card">'+renderDialogue(unit,'preview')+'</div>';
 }
-let playQueue=[],playIdx=0;
+let playQueue=[],playIdx=0,playUnitId='';
+/* ---- 发音：优先播放预生成 MP3（固定神经网络嗓音 Ava），失败回退浏览器 TTS ---- */
+let _audio=null;
+function getAudio(){if(!_audio)_audio=new Audio();return _audio}
+function stopAudio(){
+  try{const a=getAudio();a.pause();a.currentTime=0}catch(e){}
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+}
+function audioRate(r){return Math.max(0.75,Math.min(1.1,r||1))}
+function playAudio(url,rate,onend){
+  const a=getAudio();
+  try{a.pause()}catch(e){}
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  a.src=url;a.playbackRate=audioRate(rate);
+  a.onended=function(){if(onend)onend(true)};
+  a.onerror=function(){if(onend)onend(false)};
+  const p=a.play();
+  if(p&&p.catch)p.catch(function(){if(onend)onend(false)});
+}
+let WORDIDX=null;
+function wordIndex(w){
+  if(!WORDIDX){WORDIDX={};for(let i=0;i<WORDS.length;i++)WORDIDX[WORDS[i].word.toLowerCase()]=i}
+  const i=WORDIDX[String(w==null?'':w).toLowerCase()];
+  return (i===undefined)?null:i;
+}
+function wordAudioUrl(w){const i=wordIndex(w);return (i==null)?null:('audio/words/'+i+'.mp3')}
 function playAll(unitId){
   const unit=findUnitById(unitId);
-  if(!unit||!window.speechSynthesis)return;
-  window.speechSynthesis.cancel();
-  playQueue=unit.turns.map(t=>t.en);
+  if(!unit)return;
+  stopAudio();
+  playQueue=unit.turns.map(function(t,i){return i});
+  playUnitId=unitId;
   playIdx=0;
   speakNext();
 }
@@ -574,42 +585,78 @@ function setUS(u,rate){
   if(v)u.voice=v;
   return u;
 }
+function speakWordAudio(word,rate,onend){
+  const url=wordAudioUrl(word);
+  if(url){playAudio(url,rate||0.9,function(ok){if(!ok)speakWordTTS(word,rate,onend);else if(onend)onend()});return}
+  speakWordTTS(word,rate,onend);
+}
+function speakWordTTS(word,rate,onend){
+  if(!window.speechSynthesis){if(onend)onend();return}
+  const u=new SpeechSynthesisUtterance(word);
+  setUS(u,rate||0.9);
+  u.onend=function(){if(onend)onend()};
+  window.speechSynthesis.speak(u);
+}
 function speakWordText(word,rate){
-  if(!word||!window.speechSynthesis)return;
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(setUS(new SpeechSynthesisUtterance(word),rate||0.7));
+  if(!word)return;
+  stopAudio();
+  speakWordAudio(word,rate||0.9,null);
+}
+function speakTurnAudio(unitId,idx,rate,onend){
+  const url='audio/turns/'+unitId+'_'+idx+'.mp3';
+  playAudio(url,rate||1.0,function(ok){if(!ok)speakTurnTTS(unitId,idx,rate,onend);else if(onend)onend()});
+}
+function speakTurnTTS(unitId,idx,rate,onend){
+  const unit=findUnitById(unitId);
+  if(!unit||!unit.turns[idx]||!window.speechSynthesis){if(onend)onend();return}
+  const u=new SpeechSynthesisUtterance(unit.turns[idx].en);
+  setUS(u,rate||0.9);
+  u.onend=function(){if(onend)onend()};
+  window.speechSynthesis.speak(u);
 }
 function speakNext(){
   if(playIdx>=playQueue.length)return;
-  const u=new SpeechSynthesisUtterance(playQueue[playIdx]);
-  setUS(u,0.9);
-  u.onend=function(){playIdx++;setTimeout(speakNext,600)};
-  window.speechSynthesis.speak(u);
+  speakTurnAudio(playUnitId,playQueue[playIdx],1.0,function(){playIdx++;setTimeout(speakNext,500)});
 }
 function speakTurn(unitId,idx,slow){
   const unit=findUnitById(unitId);
   if(!unit||!unit.turns[idx])return;
-  if(!window.speechSynthesis){toast('浏览器不支持发音');return}
-  window.speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(unit.turns[idx].en);
-  setUS(u,slow?0.65:0.9);
-  window.speechSynthesis.speak(u);
+  stopAudio();
+  speakTurnAudio(unitId,idx,slow?0.75:1.0,null);
 }
 function speakWord(btn){
+  stopAudio();
   speakWordText(decodeURIComponent(btn.dataset.w));
 }
-let wordFilter='';
+let wordFilter='',_wsTimer=null;
 function renderWordList(){
+  // 外壳只渲染一次：标题 + 固定搜索框 + 列表容器。
+  // 关键修复：搜索框不再随列表一起 innerHTML 重建，避免「打一个字就失焦」。
+  if(!$('wordListBody')){
+    $('wordsContent').innerHTML='<div class="card"><div class="card-title">'
+      +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 3v18"/></svg>'
+      +'单词表 <span class="badge badge-teal">'+WORDS.length+'词</span>'
+      +'<span style="font-size:11px;color:var(--mute);font-weight:400;margin-left:auto">美式发音</span></div>'
+      +'<input id="wordSearch" class="word-search" placeholder="搜索单词或中文释义..." oninput="onWordSearch(this.value)">'
+      +'<div id="wordListBody"></div></div>';
+  }
+  renderWordListBody();
+}
+function onWordSearch(v){
+  // 180ms 防抖：避免每敲一个字就重建 540 行导致移动端卡顿
+  wordFilter=v;
+  if(_wsTimer)clearTimeout(_wsTimer);
+  _wsTimer=setTimeout(renderWordListBody,180);
+}
+function renderWordListBody(){
+  const body=$('wordListBody');
+  if(!body)return;
   let wl=WORDS;
   if(wordFilter){
     const q=wordFilter.toLowerCase();
     wl=WORDS.filter(w=>w.word.toLowerCase().includes(q)||w.zh.includes(wordFilter));
   }
-  let html='<div class="card"><div class="card-title">'
-    +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 3v18"/></svg>'
-    +'单词表 <span class="badge badge-teal">'+WORDS.length+'词</span>'
-    +'<span style="font-size:11px;color:var(--mute);font-weight:400;margin-left:auto">美式发音</span></div>'
-    +'<input class="word-search" placeholder="搜索单词或中文释义..." value="'+wordFilter+'" oninput="wordFilter=this.value;renderWordList()">';
+  let html='';
   const groups={};
   for(let w of wl){
     const c=w.word.charAt(0).toUpperCase();
@@ -630,8 +677,7 @@ function renderWordList(){
         +'</div>';
     }
   }
-  html+='</div>';
-  $('wordsContent').innerHTML=html;
+  body.innerHTML=html;
 }
 const CARDS_PER_DAY=20;
 let cardsFlipped=false;
@@ -918,16 +964,13 @@ function clearWordBook(){
   state.wordBook=[];saveState();renderWordBook();toast('生词本已清空');
 }
 function speakAllWords(){
-  if(!window.speechSynthesis||state.wordBook.length===0)return;
-  window.speechSynthesis.cancel();
+  if(state.wordBook.length===0)return;
+  stopAudio();
   let idx=0;
   const words=state.wordBook.map(x=>x.word);
   function next(){
     if(idx>=words.length)return;
-    const u=new SpeechSynthesisUtterance(words[idx]);
-    setUS(u,0.7);
-    u.onend=function(){idx++;setTimeout(next,800)};
-    window.speechSynthesis.speak(u);
+    speakWordAudio(words[idx],0.9,function(){idx++;setTimeout(next,600)});
   }
   next();
 }
@@ -970,11 +1013,8 @@ function renderWordReview(){
 }
 function speakReviewWord(){
   if(!wbReviewMode||wbReviewIdx>=wbReviewQueue.length)return;
-  if(!window.speechSynthesis)return;
-  window.speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(wbReviewQueue[wbReviewIdx].word);
-  setUS(u,0.7);
-  window.speechSynthesis.speak(u);
+  stopAudio();
+  speakWordAudio(wbReviewQueue[wbReviewIdx].word,0.9,null);
 }
 function answerReview(word){
   word=decodeURIComponent(word);
@@ -1038,67 +1078,6 @@ function handleFileImport(e){
 }
 function clearData(){$('clearModal').classList.add('show')}
 function closeClearModal(){$('clearModal').classList.remove('show')}
-function vesc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function openVoiceModal(){
-  if(!window.speechSynthesis){toast('当前浏览器不支持语音朗读');return}
-  window.speechSynthesis.cancel();
-  $('voiceModal').classList.add('show');
-  renderVoiceList(0);
-}
-function closeVoiceModal(){window.speechSynthesis&&window.speechSynthesis.cancel();$('voiceModal').classList.remove('show')}
-function renderVoiceList(retry){
-  const list=listUSVoices();
-  if(!list.length&&retry<3){
-    window.speechSynthesis.getVoices();
-    setTimeout(function(){renderVoiceList(retry+1)},300);
-    return;
-  }
-  const cur=(state&&state.voiceURI)?state.voiceURI:'';
-  let h='';
-  if(!list.length){
-    h='<div style="font-size:13px;color:var(--mute);line-height:1.7">没有检测到美式英语嗓音。<br>Windows：设置 → 时间和语言 → 语言和区域 → 添加「英语(美国)」并勾选语音。<br>手机：系统设置 → 语言/文字转语音 → 下载英语(美国)语音。</div>';
-  }
-  for(let i=0;i<list.length;i++){
-    const v=list[i];
-    const on=(!cur&&i===0)||(cur&&v.voiceURI===cur);
-    const tag=isNeuralVoice(v.name)?' · 神经网络（更自然）':'';
-    const e=encodeURIComponent(v.voiceURI);
-    h+='<div class="voice-row'+(on?' on':'')+'">'
-      +'<div class="voice-name">'+vesc(v.name)+'<small>'+vesc(v.lang)+tag+'</small></div>'
-      +'<div class="voice-acts">'
-        +'<button class="btn btn-outline btn-sm" onclick="testVoiceURI(&quot;'+e+'&quot;)">试听</button>'
-        +'<button class="btn '+(on?'btn-primary':'btn-outline')+' btn-sm" onclick="chooseVoiceURI(&quot;'+e+'&quot;)">'+(on?'使用中':'选用')+'</button>'
-      +'</div>'
-    +'</div>';
-  }
-  $('voiceList').innerHTML=h;
-}
-function testVoiceURI(uri){
-  const want=decodeURIComponent(uri||'');
-  if(!window.speechSynthesis)return;
-  window.speechSynthesis.cancel();
-  const vs=window.speechSynthesis.getVoices()||[];
-  let v=null;
-  for(let i=0;i<vs.length;i++){if(vs[i].voiceURI===want){v=vs[i];break}}
-  const u=new SpeechSynthesisUtterance('Hello, welcome aboard. May I see your passport, please?');
-  u.lang='en-US';u.rate=0.85;u.pitch=1;
-  if(v)u.voice=v;
-  window.speechSynthesis.speak(u);
-}
-function chooseVoiceURI(uri){
-  state.voiceURI=decodeURIComponent(uri||'');
-  _usVoice=null;
-  saveState();
-  toast('已选用该发音');
-  renderVoiceList(0);
-}
-function useAutoVoice(){
-  state.voiceURI='';
-  _usVoice=null;
-  saveState();
-  toast('已恢复自动选择最佳嗓音');
-  renderVoiceList(0);
-}
 function doClear(){
   state=defaultState();saveState();closeClearModal();refreshAll();toast('数据已清空');
 }

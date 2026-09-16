@@ -17,7 +17,7 @@
  *（例如 tour-leader-v1 -> tour-leader-v2），旧缓存会被自动清空。
  * ========================================================================= */
 
-const CACHE_NAME = 'tour-leader-v2';
+const CACHE_NAME = 'tour-leader-v3';
 
 /* 预缓存清单：应用外壳 + 静态资源（全部为相对路径，适配 /tour-leader-english/ 子路径） */
 const PRECACHE = [
